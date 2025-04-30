@@ -32,14 +32,20 @@ function LandingPage() {
 
       <main>
         <section className="hero-section">
-          <div className="hero-content">
-            <h1>Bem-vindo ao Letrajato</h1>
-            <p className="hero-subtitle">
-              Sua plataforma completa para gerenciamento de notas e documentos
-            </p>
-            <div className="cta-buttons">
-              <Link to="/register" className="cta-button primary">Começar Agora</Link>
-              <Link to="/login" className="cta-button secondary">Já tenho uma conta</Link>
+          <div className="hero-buttons-container">
+            <div className="left-button">
+              <div className="button-content">
+                <h2>Nossas Máquinas</h2>
+                <p>Conheça nossa linha de equipamentos de alta performance</p>
+                <Link to="/maquinas" className="button-link">Ver Máquinas</Link>
+              </div>
+            </div>
+            <div className="right-button">
+              <div className="button-content">
+                <h2>Área do Cliente</h2>
+                <p>Acesse sua conta para gerenciar seus serviços</p>
+                <Link to="/login" className="button-link">Fazer Login</Link>
+              </div>
             </div>
           </div>
         </section>
