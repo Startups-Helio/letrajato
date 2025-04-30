@@ -15,8 +15,8 @@ function Home(){
   const getNotes = () => {
     api
       .get("/letrajato/notes/")
-      .then((res) => res.data)
-      .then((data) => {setNotes(data); console.log(data)})
+      .then((res) => res)
+      .then((data) => {setNotes(data.data); console.log(data)})
       .catch((err) => alert(err));
   }
 
