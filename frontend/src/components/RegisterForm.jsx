@@ -7,6 +7,7 @@ import LoadingIndicator from "./LoadingIndicator"
 
 function RegisterForm({route, method}){
   const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [nome_empresa, setNomeEmpresa] = useState("")
   const [password, setPassword] = useState("")
   const [cnpj, setCnpj] = useState("")
@@ -56,6 +57,13 @@ function RegisterForm({route, method}){
       />
       <input
         className="form-input"
+        type="text"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Email"
+      />
+      <input
+        className="form-input"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
@@ -72,7 +80,7 @@ function RegisterForm({route, method}){
           }
 
         }}
-        placeholder="CNPJ (14 digitos)"
+        placeholder="CNPJ"
         maxLength="14"
       />
       {verified_cnpj &&
