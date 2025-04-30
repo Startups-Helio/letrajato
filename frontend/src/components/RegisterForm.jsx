@@ -7,9 +7,11 @@ import LoadingIndicator from "./LoadingIndicator"
 
 function RegisterForm({route, method}){
   const [username, setUsername] = useState("")
+  const [nome_empresa, setNomeEmpresa] = useState("")
   const [password, setPassword] = useState("")
   const [cnpj, setCnpj] = useState("")
   const [loading, setLoading] = useState(false)
+  const [verified_cnpj, setVerifiedCNPJ] = useState(false)
   const [consulta, setConsulta] = useState(null)
   const navigate = useNavigate()
 
@@ -21,7 +23,7 @@ function RegisterForm({route, method}){
       api
       .get(`/letrajato/cnpj/${cnpj}/`)
       .then((res) => res.data)
-      .then((data) => {setConsulta(data); alert(data.nome)})
+      .then((data) => {setConsulta(data); alert(data.nome);setVerifiedCNPJ(true)})
       .catch((err) => alert(err));
     } catch (error) {
       alert(error);
@@ -54,6 +56,15 @@ function RegisterForm({route, method}){
         onChange={(e) => setCnpj(e.target.value)}
         placeholder="CNPJ"
       />
+      {verified_cnpj &&
+        <input
+          className="form-input"
+          type="text"
+          value={nome_empresa}
+          onChange={(e) => setNomeEmpresa(e.target.value)}
+          placeholder="Nome Empresa"
+        />
+      }
       {loading && <LoadingIndicator />}
       <button className="form-button" type="submit">
         Submit

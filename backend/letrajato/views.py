@@ -44,19 +44,22 @@ class CNPJProxyView(APIView):
     """
     Proxy view for CNPJ API requests to avoid CORS issues
     """
+
+    authentication_classes = []
     permission_classes = [AllowAny]  # Or [IsAuthenticated] if you want to require login
 
     def get(self, request, cnpj, format=None):
         api_url = f"https://receitaws.com.br/v1/cnpj/{cnpj}/days/10000/"
         headers = {
-            "Authorization": "Bearer ba23a4de482d62f9850c26dadce7cf71e27c02b1ecfa8f96bfbdd5431974add2"
+            "Authorization": "Bearer 9a8c5455498d101448212bd10ed467bc158a5333b6aacae8324ca1e236026ab7"
         }
-        
+
         try:
             response = requests.get(api_url, headers=headers)
             return Response(response.json(), status=response.status_code)
         except requests.RequestException as e:
             return Response(
                 {"error": f"Error fetching CNPJ data: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+
