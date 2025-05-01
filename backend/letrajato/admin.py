@@ -12,6 +12,8 @@ class CustomUserAdmin(UserAdmin):
     list_display = [
         "email",
         "username",
+        "cnpj",
+        "nome_empresa",
         "is_staff",
         "is_active",
     ]

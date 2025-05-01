@@ -39,16 +39,14 @@ class NoteDelete(generics.DestroyAPIView):
 class CreateUserView(generics.CreateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+    authentication_classes = []
     permission_classes = [AllowAny]
 
 
 class CNPJProxyView(APIView):
-    """
-    Proxy view for CNPJ API requests to avoid CORS issues
-    """
 
     authentication_classes = []
-    permission_classes = [AllowAny]  # Or [IsAuthenticated] if you want to require login
+    permission_classes = [AllowAny]
 
     def get(self, request, cnpj, format=None):
         api_url = f"https://receitaws.com.br/v1/cnpj/{cnpj}/days/10000/"

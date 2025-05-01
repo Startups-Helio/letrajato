@@ -6,27 +6,20 @@ import "../styles/Form.css"
 import LoadingIndicator from "./LoadingIndicator"
 
 function Form({route, method}){
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
-
-  const name = method === "login" ? "Login" : "Register"
 
   const handleSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
 
     try{
-      const res = await api.post(route, {username, password})
-      if(method === "login"){
-        localStorage.setItem(ACCESS_TOKEN, res.data.access);
-        localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-        navigate("/home")
-      }
-      else{
-        navigate("/login")
-      }
+      const res = await api.post(route, {email, password})
+      localStorage.setItem(ACCESS_TOKEN, res.data.access);
+      localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
+      navigate("/home")
     }
     catch(error){
       alert(error)
@@ -37,13 +30,13 @@ function Form({route, method}){
   }
 
   return <form onSubmit={handleSubmit} className="form-container">
-  <h1>{name}</h1>
+  <h1>Login</h1>
   <input
     className="form-input"
-      type="text"
-      value={username}
-      onChange={(e) => setUsername(e.target.value)}
-      placeholder="Username"
+      type="email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      placeholder="Email"
     />
   <input
     className="form-input"
@@ -54,7 +47,7 @@ function Form({route, method}){
     />
     {loading && <LoadingIndicator />}
     <button className="form-button" type="submit">
-      {name}
+      Login
     </button>
   </form>
 }
