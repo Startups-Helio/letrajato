@@ -24,6 +24,7 @@ function NavBar() {
           <>
             <Link to="/home" className="nav-link">Dashboard</Link>
             <Link to="/notes" className="nav-link">Notas</Link>
+            <Link to="/orcamento" className="nav-link">Orçamento</Link>
             <button onClick={handleLogout} className="nav-button">Sair</button>
           </>
         ) : (
