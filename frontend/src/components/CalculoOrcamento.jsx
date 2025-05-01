@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../styles/CalculoOrcamento.css';
+import api from '../api';
 
 function CalculoOrcamento() {
   const canvasRef = useRef(null);
@@ -11,6 +12,9 @@ function CalculoOrcamento() {
   const espessuraInputRef = useRef(null);
   const precoInputRef = useRef(null);
 
+  const [email, setEmail] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
+
   // Variáveis globais
   const layerHeight = 0.55;
   const fixedDensity = 1.27;
@@ -19,6 +23,10 @@ function CalculoOrcamento() {
 
   useEffect(() => {
     initializeEventListeners();
+
+    return () => {
+      // Cleanup listeners if needed
+    };
   }, []);
 
   const initializeEventListeners = () => {
@@ -28,6 +36,7 @@ function CalculoOrcamento() {
     const espessuraInput = espessuraInputRef.current;
     const btnCalcular = document.getElementById('btnCalcular');
     const btnReset = document.getElementById('btnReset');
+    const btnEnviar = document.getElementById('btnEnviar');
 
     if (fileInput) fileInput.addEventListener('change', handleFile);
     if (slider) slider.addEventListener('input', () => {
@@ -35,6 +44,7 @@ function CalculoOrcamento() {
     });
     if (btnCalcular) btnCalcular.addEventListener('click', calcularConsumo);
     if (btnReset) btnReset.addEventListener('click', resetForm);
+    if (btnEnviar) btnEnviar.addEventListener('click', handleSendEmail);
   };
 
   const handleFile = (e) => {
@@ -226,6 +236,79 @@ function CalculoOrcamento() {
     estimate = 1;
   };
 
+  const handleSendEmail = async () => {
+    if (!email) {
+      alert('Por favor, insira um endereço de e-mail válido.');
+      return;
+    }
+    
+    if (!resultadoRef.current || !resultadoRef.current.innerHTML.includes('Estimativa')) {
+      alert('Realize pelo menos um cálculo antes de enviar o orçamento.');
+      return;
+    }
+    
+    setSendingEmail(true);
+    
+    try {
+      // Get all calculation results
+      const resultadosHTML = resultadoRef.current.innerHTML;
+      
+      // Get SVG data if available
+      let svgData = '';
+      if (svgElement) {
+        const svgWidth = (svgBBox.width * svgScale / 10).toFixed(2);
+        const svgHeight = (svgBBox.height * svgScale / 10).toFixed(2);
+        svgData = `
+          <p><strong>Dimensões SVG:</strong> ${svgWidth} cm x ${svgHeight} cm</p>
+          <p><strong>Área:</strong> ${(areaReal / 100).toFixed(2)} cm²</p>
+          <p><strong>Perímetro:</strong> ${(perimeter / 10).toFixed(2)} cm</p>
+        `;
+      }
+      
+      // Prepare email content
+      const subject = 'Orçamento Letrajato';
+      const message = `
+        <html>
+          <head>
+            <style>
+              body { font-family: Arial, sans-serif; }
+              h2 { color: #333; }
+              .estimate { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+            </style>
+          </head>
+          <body>
+            <h2>Orçamento Letrajato</h2>
+            <div>
+              ${svgData}
+              <div class="estimate-results">
+                ${resultadosHTML}
+              </div>
+            </div>
+            <p>Agradecemos seu interesse em nossos serviços!</p>
+          </body>
+        </html>
+      `;
+      
+      // Send email through API
+      const response = await api.post('/letrajato/send-email/', {
+        email,
+        subject,
+        message
+      });
+      
+      if (response.status === 200) {
+        alert('Orçamento enviado com sucesso!');
+        setEmail(''); // Clear email field
+      } else {
+        throw new Error('Falha ao enviar e-mail.');
+      }
+    } catch (error) {
+      alert(`Erro ao enviar o e-mail: ${error.message}`);
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   return (
     <div className="orcamento-container">
       <header className="orcamento-header">
@@ -352,8 +435,21 @@ function CalculoOrcamento() {
 
           <div id="email-container" className="email-container">
             <h3 className="email-title">Enviar orçamento por e-mail</h3>
-            <input type="email" id="email" className="email-input" placeholder="Seu e-mail" />
-            <button id="btnEnviar" className="btn btn-primary">Enviar</button>
+            <input 
+              type="email"
+              id="email"
+              className="email-input"
+              placeholder="Seu e-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <button
+              id="btnEnviar"
+              className="btn btn-primary"
+              onClick={handleSendEmail}
+              disabled={sendingEmail}>
+                {sendingEmail ? 'Enviando...' : 'Enviar'}
+            </button>
           </div>
         </section>
       </main>
