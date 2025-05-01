@@ -9,7 +9,7 @@ function Login() {
   return (
     <div className="login-container">
       <NavBar />
-      <Form route="/letrajato/token/" method="login" onSuccess={(data) => login(data.username, data.password)} />
+      <Form route="/letrajato/token/" method="login" onSuccess={(data) => login(data.email, data.password)} />
     </div>
   );
 }

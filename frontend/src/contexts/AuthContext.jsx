@@ -55,9 +55,9 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  const login = async (username, password) => {
+  const login = async (email, password) => {
     try {
-      const res = await api.post("/letrajato/token/", { username, password });
+      const res = await api.post("/letrajato/token/", { email, password });
       localStorage.setItem(ACCESS_TOKEN, res.data.access);
       localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
       setIsAuthenticated(true);
