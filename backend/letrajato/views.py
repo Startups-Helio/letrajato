@@ -7,6 +7,8 @@ from .serializers import UserSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Note
 import requests
+
+from .models import CustomUser
 # Create your views here.
 
 
@@ -35,7 +37,7 @@ class NoteDelete(generics.DestroyAPIView):
 
 
 class CreateUserView(generics.CreateAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
@@ -62,4 +64,3 @@ class CNPJProxyView(APIView):
                 {"error": f"Error fetching CNPJ data: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
