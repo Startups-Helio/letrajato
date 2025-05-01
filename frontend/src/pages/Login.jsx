@@ -1,13 +1,17 @@
-import Form from "../components/Form"
-import NavBar from "../components/NavBar"
+import React, { useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+import NavBar from '../components/NavBar';
+import Form from '../components/Form';
 
-function Login(){
-  
-  return<div class name="login-container">
-    <NavBar />
-    <Form route="/letrajato/token/" method="login"/>
-  </div>
+function Login() {
+  const { login } = useContext(AuthContext);
+
+  return (
+    <div className="login-container">
+      <NavBar />
+      <Form route="/letrajato/token/" method="login" onSuccess={(data) => login(data.username, data.password)} />
+    </div>
+  );
 }
 
-export default Login
-
+export default Login;

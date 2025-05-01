@@ -1,62 +1,62 @@
-import {useState} from "react"
-import api from "../api"
-import {useNavigate} from "react-router-dom"
-import {ACCESS_TOKEN, REFRESH_TOKEN} from "../constants"
-import "../styles/Form.css"
-import LoadingIndicator from "./LoadingIndicator"
+import React, { useState, useContext } from 'react';
+import api from '../api';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
+import '../styles/Form.css';
 
-function Form({route, method}){
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+function Form({ route, method, onSuccess }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const name = method === "login" ? "Login" : "Register"
-
-  const handleSubmit = async (e) => {
-    setLoading(true);
+  const handleSubmit = async e => {
     e.preventDefault();
-
-    try{
-      const res = await api.post(route, {username, password})
-      if(method === "login"){
-        localStorage.setItem(ACCESS_TOKEN, res.data.access);
-        localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-        navigate("/home")
+    try {
+      const res = await api.post(route, { username, password });
+      if (method === 'login') {
+        // usa função de contexto para armazenar tokens
+        await login(username, password);
+        navigate('/home');
+      } else {
+        // método register ou outros
+        navigate('/login');
       }
-      else{
-        navigate("/login")
-      }
+      if (onSuccess) onSuccess({ username, password });
+    } catch (err) {
+      setError('Credenciais inválidas. Tente novamente.');
     }
-    catch(error){
-      alert(error)
-    }
-    finally{
-      setLoading(false)
-    }
-  }
+  };
 
-  return <form onSubmit={handleSubmit} className="form-container">
-  <h1>{name}</h1>
-  <input
-    className="form-input"
-      type="text"
-      value={username}
-      onChange={(e) => setUsername(e.target.value)}
-      placeholder="Username"
-    />
-  <input
-    className="form-input"
-      type="password"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      placeholder="Password"
-    />
-    {loading && <LoadingIndicator />}
-    <button className="form-button" type="submit">
-      {name}
-    </button>
-  </form>
+  return (
+    <form className="form-container" onSubmit={handleSubmit}>
+      {error && <p className="error">{error}</p>}
+      <label htmlFor="username">Usuário</label>
+      <input
+        id="username"
+        className="form-input"
+        type="text"
+        value={username}
+        onChange={e => setUsername(e.target.value)}
+        required
+      />
+
+      <label htmlFor="password">Senha</label>
+      <input
+        id="password"
+        className="form-input"
+        type="password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        required
+      />
+
+      <button type="submit" className="form-button">
+        {method === 'login' ? 'Entrar' : 'Registrar'}
+      </button>
+    </form>
+  );
 }
 
-export default Form
+export default Form;
