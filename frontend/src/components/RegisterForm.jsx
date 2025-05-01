@@ -42,7 +42,35 @@ function RegisterForm({route, method}){
   const handleSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
-
+  
+    if (!username || !email || !password) {
+      alert("Por favor preencha todos os campos obrigatórios.");
+      setLoading(false);
+      return;
+    }
+  
+    try {
+      if (!verified_cnpj) {
+        await validateCNPJ();
+      } else {
+        const response = await api.post(route, {
+          email,
+          username,
+          password,
+          cnpj,
+          nome_empresa
+        });
+        
+        if (response.status === 201) {
+          alert("Registro realizado com sucesso!");
+          navigate("/login");
+        }
+      }
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,7 +85,7 @@ function RegisterForm({route, method}){
       />
       <input
         className="form-input"
-        type="text"
+        type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
