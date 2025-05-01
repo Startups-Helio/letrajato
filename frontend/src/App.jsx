@@ -6,6 +6,7 @@ import NotFound from "./pages/NotFound"
 import Home from "./pages/Home"
 import LandingPage from "./pages/LandingPage"
 import ProtectedRoute from "./components/ProtectedRoute"
+import Orcamento from "./pages/Orcamento"
 
 function Logout(){
   localStorage.clear()
