@@ -1,55 +1,57 @@
-import {useState} from "react"
-import api from "../api"
-import {useNavigate} from "react-router-dom"
-import {ACCESS_TOKEN, REFRESH_TOKEN} from "../constants"
-import "../styles/Form.css"
-import LoadingIndicator from "./LoadingIndicator"
+import React, { useState, useContext } from 'react';
+import api from '../api';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../contexts/AuthContext';
+import '../styles/Form.css';
 
-function Form({route, method}){
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+function Form({ route, method, onSuccess }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(null);
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    setLoading(true);
+  const handleSubmit = async e => {
     e.preventDefault();
+    try {
+      const res = await api.post(route, { email, password });
+      // usa função de contexto para armazenar tokens
+      await login(email, password);
+      navigate('/home');
+      if (onSuccess) onSuccess({ email, password });
+    } catch (err) {
+      setError('Credenciais inválidas. Tente novamente.');
 
-    try{
-      const res = await api.post(route, {email, password})
-      localStorage.setItem(ACCESS_TOKEN, res.data.access);
-      localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-      navigate("/home")
     }
-    catch(error){
-      alert(error)
-    }
-    finally{
-      setLoading(false)
-    }
-  }
+  };
 
-  return <form onSubmit={handleSubmit} className="form-container">
-  <h1>Login</h1>
-  <input
-    className="form-input"
-      type="email"
-      value={email}
-      onChange={(e) => setEmail(e.target.value)}
-      placeholder="Email"
-    />
-  <input
-    className="form-input"
-      type="password"
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      placeholder="Password"
-    />
-    {loading && <LoadingIndicator />}
-    <button className="form-button" type="submit">
-      Login
-    </button>
-  </form>
+  return (
+    <form className="form-container" onSubmit={handleSubmit}>
+      {error && <p className="error">{error}</p>}
+      <label htmlFor="email">Email</label>
+      <input
+        id="email"
+        className="form-input"
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+        required
+      />
+
+      <label htmlFor="password">Senha</label>
+      <input
+        id="password"
+        className="form-input"
+        type="password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        required
+      />
+      <button type="submit" className="form-button">
+        Login
+      </button>
+    </form>
+  );
 }
 
-export default Form
+export default Form;
