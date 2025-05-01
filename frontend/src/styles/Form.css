@@ -34,3 +34,59 @@
 .form-button:hover {
   background-color: #E04600;
 }
+
+.form-button:disabled {
+  background-color: #cccccc; /* Gray color when disabled */
+  color: #888888; /* Darker gray text when disabled */
+  cursor: not-allowed; /* Change cursor to indicate it's not clickable */
+  opacity: 0.7; /* Make it slightly transparent */
+}
+
+
+
+
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.form-input {
+  width: 100%; /* Take full width of wrapper */
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  padding-right: 30px; /* Add space for the checkmark */
+}
+
+.field-status {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #2ecc71;
+}
+
+.field-status-required {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  color: #cf2222;
+}
