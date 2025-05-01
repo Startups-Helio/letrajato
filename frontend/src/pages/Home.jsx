@@ -42,7 +42,6 @@ function Home(){
   return (
     <div className="home-container">
       <NavBar />
-      <Banner />
       <div className="content-container">
         <div className="notes-section">
             <h2>Minhas Notas</h2>

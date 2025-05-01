@@ -20,7 +20,7 @@ function RegisterAndLogout(){
 function App() {
 
   return (
-    <BrowserRouter>
+    <>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route
@@ -36,7 +36,7 @@ function App() {
         <Route path="/register" element = {<Register />}/>
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
-    </BrowserRouter> 
+    </>
   )
 }
 
