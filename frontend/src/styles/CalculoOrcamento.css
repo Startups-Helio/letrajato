@@ -154,6 +154,14 @@ body {
   border-radius: 4px;
 }
 
+.email-input {
+  width: 79%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  margin-right: 1rem;
+  border-radius: 4px;
+}
+
 .button-group {
   display: flex;
   gap: 10px;
