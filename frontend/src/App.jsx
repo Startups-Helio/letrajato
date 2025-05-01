@@ -23,6 +23,7 @@ function App() {
     <>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route
           path="/home"
           element={
@@ -31,6 +32,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/orcamento" element = {<Orcamento />}/>
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>
