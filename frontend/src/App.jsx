@@ -6,7 +6,7 @@ import NotFound from "./pages/NotFound"
 import Home from "./pages/Home"
 import LandingPage from "./pages/LandingPage"
 import ProtectedRoute from "./components/ProtectedRoute"
-import Orcamento from "./components/CalculoOrcamento"
+import Orcamento from "./pages/Orcamento"
 
 function Logout(){
   localStorage.clear()
@@ -23,7 +23,6 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
         <Route path="/" element={<LandingPage />} />
         <Route
           path="/home"

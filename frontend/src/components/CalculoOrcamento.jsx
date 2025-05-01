@@ -349,6 +349,12 @@ function CalculoOrcamento() {
           <div id="resultado" className="resultado" ref={resultadoRef}>
             <h3 className="resultado-title">Resultados</h3>
           </div>
+
+          <div id="email-container" className="email-container">
+            <h3 className="email-title">Enviar orçamento por e-mail</h3>
+            <input type="email" id="email" className="email-input" placeholder="Seu e-mail" />
+            <button id="btnEnviar" className="btn btn-primary">Enviar</button>
+          </div>
         </section>
       </main>
       

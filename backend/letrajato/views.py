@@ -7,6 +7,8 @@ from .serializers import UserSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Note
 import requests
+
+from .models import CustomUser
 # Create your views here.
 
 
@@ -35,18 +37,16 @@ class NoteDelete(generics.DestroyAPIView):
 
 
 class CreateUserView(generics.CreateAPIView):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
+    authentication_classes = []
     permission_classes = [AllowAny]
 
 
 class CNPJProxyView(APIView):
-    """
-    Proxy view for CNPJ API requests to avoid CORS issues
-    """
 
     authentication_classes = []
-    permission_classes = [AllowAny]  # Or [IsAuthenticated] if you want to require login
+    permission_classes = [AllowAny]
 
     def get(self, request, cnpj, format=None):
         api_url = f"https://receitaws.com.br/v1/cnpj/{cnpj}/days/10000/"
@@ -62,4 +62,3 @@ class CNPJProxyView(APIView):
                 {"error": f"Error fetching CNPJ data: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-
