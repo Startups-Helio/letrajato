@@ -1,10 +1,10 @@
-import Form from "../components/Form"
+import RegisterForm from "../components/RegisterForm"
 import NavBar from "../components/NavBar"
 
 function Register(){
   return <div>
           <NavBar/>
-          <Form route="/letrajato/user/register/" method="register"/>
+          <RegisterForm route="/letrajato/user/register/" method="register"/>
         </div>
 }
 
