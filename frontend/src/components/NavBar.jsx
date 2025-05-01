@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
 import "../styles/NavBar.css";
 
 function NavBar() {
-  const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  useEffect(() => {
-    // Verifica se o usuário está logado (tem token de acesso)
-    const token = localStorage.getItem("access_token");
-    setIsLoggedIn(!!token);
-  }, [location]);
+  const { isAuthenticated, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
     <nav className="navbar">
@@ -19,12 +20,11 @@ function NavBar() {
       </div>
       <div className="navbar-links">
         <Link to="/" className="nav-link">Início</Link>
-        
-        {isLoggedIn ? (
+        {isAuthenticated ? (
           <>
             <Link to="/home" className="nav-link">Dashboard</Link>
             <Link to="/notes" className="nav-link">Notas</Link>
-            <Link to="/logout" className="nav-link">Sair</Link>
+            <button onClick={handleLogout} className="nav-button">Sair</button>
           </>
         ) : (
           <>
