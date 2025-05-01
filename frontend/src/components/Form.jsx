@@ -4,6 +4,7 @@ import {useNavigate} from "react-router-dom"
 import {ACCESS_TOKEN, REFRESH_TOKEN} from "../constants"
 import "../styles/Form.css"
 import LoadingIndicator from "./LoadingIndicator"
+import {Link} from "react-router-dom"
 
 function Form({route, method}){
   const [username, setUsername] = useState("")
@@ -12,6 +13,7 @@ function Form({route, method}){
   const navigate = useNavigate()
 
   const name = method === "login" ? "Login" : "Register"
+
 
   const handleSubmit = async (e) => {
     setLoading(true);
@@ -56,6 +58,7 @@ function Form({route, method}){
     <button className="form-button" type="submit">
       {name}
     </button>
+
   </form>
 }
 
