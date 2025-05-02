@@ -6,7 +6,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("letrajato/admin/", admin.site.urls),
     path("letrajato/user/register/", CreateUserView.as_view(), name="register"),
     path("letrajato/token/", TokenObtainPairView.as_view(), name="get_token"),
     path("letrajato/token/refresh/", TokenRefreshView.as_view(), name="refresh"),
@@ -21,3 +21,4 @@ if settings.DEBUG:
 else:
     # For production, you might still want to serve media files
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
