@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "whitenoise.runserver_nostatic",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -65,6 +66,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware"
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -194,4 +196,3 @@ EMAIL_HOST_USER = (
     "letrajatotest@gmail.com"  # Set in environment variables for production
 )
 EMAIL_HOST_PASSWORD = "przpejqwcsyhbtee"
-
