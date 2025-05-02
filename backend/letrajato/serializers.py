@@ -5,6 +5,8 @@ from .models import Note
 
 
 class UserSerializer(serializers.ModelSerializer):
+    consulta_data = serializers.JSONField(write_only=True, required=False)
+
     class Meta:
         model = CustomUser
         fields = ["id", "email", "username", "password", "cnpj", "nome_empresa", "consulta_data"]
@@ -14,7 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
             "username": {"required": True},
             "cnpj": {"required": True},
             "nome_empresa": {"required": True},
-            "consulta_data": {"write_only": True, "required": False}
         }
 
     def create(self, validated_data):
