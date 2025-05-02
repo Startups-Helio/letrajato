@@ -82,7 +82,8 @@ function RegisterForm({route, method}){
         username,
         password,
         cnpj,
-        nome_empresa
+        nome_empresa,
+        consulta_data: consulta
       });
       
       if (response.status === 201) {

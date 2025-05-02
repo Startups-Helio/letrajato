@@ -7,7 +7,7 @@ from .models import Note
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["id", "email", "username", "password", "cnpj", "nome_empresa"]
+        fields = ["id", "email", "username", "password", "cnpj", "nome_empresa", "consulta_data"]
         extra_kwargs = {
             "password": {"write_only": True},
             "email": {"required": True},
@@ -17,7 +17,12 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        consulta_data = validated_data.pop('consulta_data', None)
+
         user = CustomUser.objects.create_user(**validated_data)
+
+        self.context['consulta_data'] = consulta_data
+        
         return user
 
 
