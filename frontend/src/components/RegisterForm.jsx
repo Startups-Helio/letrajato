@@ -63,12 +63,6 @@ function RegisterForm({route, method}){
       return;
     }
     
-    if (!verified_cnpj) {
-      alert("Por favor, aguarde a validação do CNPJ.");
-      //await validateCNPJ();
-      return;
-    }
-    
     if (!nome_empresa) {
       alert("Por favor, preencha o nome da empresa.");
       return;
