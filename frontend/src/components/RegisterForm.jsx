@@ -171,7 +171,6 @@ function RegisterForm({route, method}){
       <button 
         className="form-button" 
         type="submit"
-        disabled={!username || !email || !password || !cnpj || !verified_cnpj || !nome_empresa || loading}
       >
         {loading ? "Processando..." : "Registrar"}
       </button>
