@@ -191,6 +191,6 @@ EMAIL_HOST = "smtp.gmail.com"  # Or your email provider's SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = (
-    "letrajatotest@gmail.com"  # Set in environment variables for production
+    "letrajato.suporte@gmail.com"  # Set in environment variables for production
 )
-EMAIL_HOST_PASSWORD = "przpejqwcsyhbtee"
+EMAIL_HOST_PASSWORD = "bqqxsiafxuojkplz"
