@@ -19,7 +19,7 @@ api.interceptors.response.use(
       if (refresh) {
         try {
           const { data } = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/letrajato/token/refresh/`,
+            `${import.meta.env.VITE_API_URL}/letrajato/token/refresh/`,
             { refresh }
           );
           localStorage.setItem(ACCESS_TOKEN, data.access);
