@@ -28,29 +28,30 @@ function Form({ route, method, onSuccess }) {
   return (
     <form className="form-container" onSubmit={handleSubmit}>
       {error && <p className="error">{error}</p>}
-      <label htmlFor="email">Email</label>
+      <h1>Entrar</h1>
       <input
         id="email"
         className="form-input"
         type="email"
         value={email}
         onChange={e => setEmail(e.target.value)}
+        placeholder="Email"
         required
       />
 
-      <label htmlFor="password">Senha</label>
       <input
         id="password"
         className="form-input"
         type="password"
         value={password}
         onChange={e => setPassword(e.target.value)}
+        placeholder="Senha"
         required
       />
       <button type="submit" className="form-button">
         Login
       </button>
-      <Link to="/register" className="redirect-form">Não possui cadastro? Se registre</Link>
+      <Link to="/register" className="redirect-form">Não possui cadastro? Registre-se</Link>
     </form>
   );
 }
