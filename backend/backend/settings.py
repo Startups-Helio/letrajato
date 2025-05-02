@@ -150,14 +150,14 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://0.0.0.0:5173",
     "http://3.133.118.205:5173",
-    "ec2-3-133-118-205.us-east-2.compute.amazonaws.com:5173",
+    "http://ec2-3-133-118-205.us-east-2.compute.amazonaws.com:5173",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://0.0.0.0:5173",
     "http://3.133.118.205:5173",
-    "ec2-3-133-118-205.us-east-2.compute.amazonaws.com:5173",
+    "http://ec2-3-133-118-205.us-east-2.compute.amazonaws.com:5173",
 ]
 CORS_ALLOW_METHODS = [
     "DELETE",
