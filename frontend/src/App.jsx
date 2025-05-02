@@ -32,7 +32,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/orcamento" element = {<Orcamento />}/>
+        <Route path="/orcamento" element = {<ProtectedRoute><Orcamento /></ProtectedRoute>}/>
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>

@@ -35,7 +35,7 @@ function RegisterForm({route, method}){
 
   useEffect(() => {
     if (cnpj.length === 14) {
-      //validateCNPJ();
+      validateCNPJ();
     }
   }, [cnpj]);
 
@@ -60,6 +60,12 @@ function RegisterForm({route, method}){
     
     if (!cnpj || cnpj.length !== 14) {
       alert("Por favor, informe um CNPJ válido com 14 dígitos.");
+      return;
+    }
+
+    if (!verified_cnpj) {
+      alert("Por favor, verifique o CNPJ antes de prosseguir.");
+      validateCNPJ();
       return;
     }
     
@@ -148,7 +154,7 @@ function RegisterForm({route, method}){
       <span className={cnpj?"field-status":"field-status-required"}>{cnpj ? "✓" : "*"}</span>
       </div>
 
-      
+      {verified_cnpj &&
       <div className="input-wrapper">
       <input
         className="form-input"
@@ -160,6 +166,7 @@ function RegisterForm({route, method}){
       />
       <span className={nome_empresa?"field-status":"field-status-required"}>{nome_empresa ? "✓" : "*"}</span>
       </div>
+      }
       
       {loading && <LoadingIndicator />}
       <button 
