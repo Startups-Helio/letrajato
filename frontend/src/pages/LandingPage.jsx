@@ -63,20 +63,6 @@ function LandingPage() {
             ))}
           </div>
         </section>
-
-        <section className="testimonials-section">
-          <h2>O que nossos usuários dizem</h2>
-          <div className="testimonials-grid">
-            <div className="testimonial-card">
-              <p className="testimonial-text">"O Letrajato revolucionou a forma como organizo minhas ideias. Simplesmente incrível!"</p>
-              <p className="testimonial-author">- Maria Silva</p>
-            </div>
-            <div className="testimonial-card">
-              <p className="testimonial-text">"Interface intuitiva e recursos poderosos. Recomendo para todos os profissionais."</p>
-              <p className="testimonial-author">- João Santos</p>
-            </div>
-          </div>
-        </section>
       </main>
 
       <footer className="landing-footer">
