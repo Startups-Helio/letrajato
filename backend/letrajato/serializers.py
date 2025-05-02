@@ -13,7 +13,8 @@ class UserSerializer(serializers.ModelSerializer):
             "email": {"required": True},
             "username": {"required": True},
             "cnpj": {"required": True},
-            "nome_empresa": {"required": True}
+            "nome_empresa": {"required": True},
+            "consulta_data": {"write_only": True, "required": False}
         }
 
     def create(self, validated_data):
@@ -22,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create_user(**validated_data)
 
         self.context['consulta_data'] = consulta_data
-        
+
         return user
 
 
