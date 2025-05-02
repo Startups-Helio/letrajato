@@ -146,22 +146,35 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173/",
-    "http://127.0.0.1:5173/",
-    "http://0.0.0.0:5173/",
-    "http://3.133.118.205:5173/",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://0.0.0.0:5173",
+    "http://3.133.118.205:5173",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173/",
-    "http://127.0.0.1:5173/",
-    "http://0.0.0.0:5173/",
-    "http://3.133.118.205:5173/",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://0.0.0.0:5173",
+    "http://3.133.118.205:5173",
 ]
-CORS_ALLOW_HEADERS = [ "accept", "accept-encoding", "authorization", "content-type", "dnt", "origin", "user-agent", "x-csrftoken", "x-requested-with", ]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Or your email provider's SMTP server
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"  # Or your email provider's SMTP server
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'letrajatotest@gmail.com'  # Set in environment variables for production
-EMAIL_HOST_PASSWORD = 'przpejqwcsyhbtee'
+EMAIL_HOST_USER = (
+    "letrajatotest@gmail.com"  # Set in environment variables for production
+)
+EMAIL_HOST_PASSWORD = "przpejqwcsyhbtee"
+
