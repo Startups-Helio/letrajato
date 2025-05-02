@@ -144,8 +144,19 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173/",
+    "http://127.0.0.1:5173/",
+    "http://0.0.0.0:5173/",
+    "http://3.133.118.205:5173/",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173/",
+    "http://127.0.0.1:5173/",
+    "http://0.0.0.0:5173/",
+    "http://3.133.118.205:5173/",
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Or your email provider's SMTP server
