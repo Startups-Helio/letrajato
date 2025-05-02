@@ -10,19 +10,19 @@ function LandingPage() {
   // Array de features para facilitar a manutenção
   const features = [
     {
-      icon: "📝",
-      title: "Notas Organizadas",
-      description: "Crie, edite e organize suas notas de forma simples e eficiente."
+      icon: "🖨️",
+      title: "Máquinas 3D de Alta Precisão",
+      description: "Equipamentos de última geração com tecnologia avançada para impressões 3D de alta qualidade e precisão."
     },
     {
-      icon: "🔒",
-      title: "Segurança Garantida",
-      description: "Seus dados estão protegidos com nossa tecnologia de criptografia."
+      icon: "💰",
+      title: "Orçamento Inteligente",
+      description: "Sistema automatizado que calcula o melhor custo-benefício para seus projetos de impressão 3D."
     },
     {
-      icon: "📱",
-      title: "Acesso em Qualquer Lugar",
-      description: "Acesse suas notas de qualquer dispositivo, a qualquer momento."
+      icon: "🛒",
+      title: "Portal para Revendedores",
+      description: "Área exclusiva para revendedores fazerem pedidos, acompanhar entregas e gerenciar estoque."
     }
   ];
 
@@ -37,7 +37,7 @@ function LandingPage() {
               <div className="button-content">
                 <h2>Nossas Máquinas</h2>
                 <p>Conheça nossa linha de equipamentos de alta performance</p>
-                <Link to="/maquinas" className="button-link">Ver Máquinas</Link>
+                <Link to="https://loja.infinitepay.io/letrajato3d/ugz3594-impressora-3d-lj8080-letrajato" className="button-link">LJ8080</Link>
               </div>
             </div>
             <div className="right-button">
