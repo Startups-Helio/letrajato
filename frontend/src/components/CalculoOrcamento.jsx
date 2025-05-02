@@ -10,7 +10,6 @@ function CalculoOrcamento() {
   const sliderRef = useRef(null);
   const alturaLabelRef = useRef(null);
   const espessuraInputRef = useRef(null);
-  const precoInputRef = useRef(null);
 
   const [email, setEmail] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -36,7 +35,6 @@ function CalculoOrcamento() {
     const espessuraInput = espessuraInputRef.current;
     const btnCalcular = document.getElementById('btnCalcular');
     const btnReset = document.getElementById('btnReset');
-    const btnEnviar = document.getElementById('btnEnviar');
 
     if (fileInput) fileInput.addEventListener('change', handleFile);
     if (slider) slider.addEventListener('input', () => {
@@ -44,7 +42,6 @@ function CalculoOrcamento() {
     });
     if (btnCalcular) btnCalcular.addEventListener('click', calcularConsumo);
     if (btnReset) btnReset.addEventListener('click', resetForm);
-    if (btnEnviar) btnEnviar.addEventListener('click', handleSendEmail);
   };
 
   const handleFile = (e) => {
@@ -184,7 +181,7 @@ function CalculoOrcamento() {
     const acr = document.querySelector('input[name="acrilico"]:checked').value;
     const altura = +sliderRef.current.value;
     const fundo = +espessuraInputRef.current.value;
-    const preco = +precoInputRef.current.value;
+    const preco = 550;
     const den = fixedDensity;
     
     const largura = altura <= 40 ? 1.2 : 
@@ -211,7 +208,7 @@ function CalculoOrcamento() {
     let html = `<p class="estimativa-label">Estimativa ${estimate}</p>`;
     html += `<p><strong>Altura da parede:</strong> ${altura} mm</p>`;
     html += `<p><strong>Espessura da parede:</strong> ${largura.toFixed(1)} mm</p>`;
-    html += (custoAcr > 0 ? `<p><strong>Cust. Acrílico:</strong> R$ ${custoAcr.toFixed(2)}</p>` : '');
+    //html += (custoAcr > 0 ? `<p><strong>Cust. Acrílico:</strong> R$ ${custoAcr.toFixed(2)}</p>` : '');
     html += `<p><strong>Peso:</strong> ${peso.toFixed(2)} g</p>`;
     html += `<p><strong>Custo Total:</strong> R$ ${custo.toFixed(2)}</p>`;
     
@@ -389,30 +386,16 @@ function CalculoOrcamento() {
               />
             </div>
             
-            <div className="form-group">
-              <label className="form-label">Preço por kg (R$)</label>
-              <input 
-                type="number" 
-                id="precoKg" 
-                defaultValue="550" 
-                step="0.01" 
-                className="number-input"
-                ref={precoInputRef}
-              />
-            </div>
-            
             <div className="button-group">
               <button 
                 id="btnCalcular" 
                 className="btn btn-primary"
-                onClick={calcularConsumo}
               >
                 Calcular
               </button>
               <button 
                 id="btnReset" 
                 className="btn btn-secondary"
-                onClick={resetForm}
               >
                 Resetar
               </button>

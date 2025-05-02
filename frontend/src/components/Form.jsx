@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import api from '../api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import '../styles/Form.css';
 
@@ -17,7 +17,7 @@ function Form({ route, method, onSuccess }) {
       const res = await api.post(route, { email, password });
       // usa função de contexto para armazenar tokens
       await login(email, password);
-      navigate('/home');
+      navigate('/orcamento');
       if (onSuccess) onSuccess({ email, password });
     } catch (err) {
       setError('Credenciais inválidas. Tente novamente.');
@@ -50,6 +50,7 @@ function Form({ route, method, onSuccess }) {
       <button type="submit" className="form-button">
         Login
       </button>
+      <Link to="/register" className="redirect-form">Não possui cadastro? Se registre</Link>
     </form>
   );
 }

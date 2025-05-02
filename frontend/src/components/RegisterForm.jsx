@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react"
 import api from "../api"
-import {useNavigate} from "react-router-dom"
+import {useNavigate, Link} from "react-router-dom"
 import {ACCESS_TOKEN, REFRESH_TOKEN} from "../constants"
 import "../styles/Form.css"
 import LoadingIndicator from "./LoadingIndicator"
@@ -175,6 +175,7 @@ function RegisterForm({route, method}){
       >
         {loading ? "Processando..." : "Registrar"}
       </button>
+      <Link to="/login" className="redirect-form">Já possui login?</Link>
     </form>
   );
 }
