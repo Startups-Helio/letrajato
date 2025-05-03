@@ -184,6 +184,53 @@ class CNPJProxyView(APIView):
             )
 
 
+class EmailSendAbateView(APIView):
+    """
+    API endpoint for sending emails
+    """
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        try:
+            email = request.data.get("email")
+            subject = request.data.get("subject")
+            message = request.data.get("message")
+
+            if not email or not subject or not message:
+                return Response(
+                    {"error": "Email, subject, and message are required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Create plain text version (optional)
+            plain_message = "Este é um email de orçamento da Letrajato."
+
+            # Create email
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=plain_message,  # Plain text alternate version
+                from_email=settings.EMAIL_HOST_USER,
+                to=["lemraffaini@gmail.com"],
+            )
+
+            # Attach HTML content
+            email_message.attach_alternative(message, "text/html")
+
+            # Send email
+            email_message.send(fail_silently=False)
+
+            return Response(
+                {"success": "Email sent successfully"}, status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to send email: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+            
 class EmailSendView(APIView):
     """
     API endpoint for sending emails

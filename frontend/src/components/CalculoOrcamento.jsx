@@ -244,10 +244,10 @@ function CalculoOrcamento() {
   };
 
   const handleSendEmail = async () => {
-    if (!email) {
-      alert('Por favor, insira um endereço de e-mail válido.');
-      return;
-    }
+    // if (!email) {
+    //   alert('Por favor, insira um endereço de e-mail válido.');
+    //   return;
+    // }
     
     if (!resultadoRef.current || !resultadoRef.current.innerHTML.includes('Estimativa')) {
       alert('Realize pelo menos um cálculo antes de enviar o orçamento.');
@@ -309,6 +309,22 @@ function CalculoOrcamento() {
       } else {
         throw new Error('Falha ao enviar e-mail.');
       }
+      
+      // Send email through API
+      console.log('Sending email to abate:', email);
+      const response2 = await api.post('/letrajato/send-email-abate/', {
+        email,
+        subject,
+        message
+      });
+
+      if (response2.status === 200) {
+        alert('Orçamento enviado com sucesso!');
+        setEmail(''); // Clear email field
+      } else {
+        throw new Error('Falha ao enviar e-mail.');
+      }
+
     } catch (error) {
       alert(`Erro ao enviar o e-mail: ${error.message}`);
     } finally {
@@ -433,14 +449,6 @@ function CalculoOrcamento() {
             <h3 className="email-title">Enviar orçamento por e-mail</h3>
             <p className="email-description">Insira seu e-mail para receber os resultados.</p>
             <p className="email-description">O orçamento será enviado para nossa equipe, que entrará em contato brevemente.</p>
-            <input 
-              type="email"
-              id="email"
-              className="email-input"
-              placeholder="Seu e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
             <button
               id="btnEnviar"
               className="btn btn-primary"
