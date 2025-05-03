@@ -72,22 +72,25 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  width: 450px;
 }
 
 .section-title {
+  text-align: center;
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 20px;
   color: #333;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
 }
 
 /* Formulário */
-.form-container {
+.orcamento-form-container {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
 }
 
 .form-group {
@@ -95,8 +98,9 @@ body {
 }
 
 .form-label {
+  text-align: center;
   display: block;
-  font-size: 14px;
+  
   font-weight: 500;
   margin-bottom: 8px;
   color: #555;
@@ -105,24 +109,35 @@ body {
 .radio-group {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
 }
 
 @media (min-width: 576px) {
   .radio-group {
     flex-direction: row;
-    gap: 20px;
+    gap: 40px;
   }
 }
 
 .radio-label {
   display: flex;
   align-items: center;
+  flex-direction: column;
+  align-items: center;
   cursor: pointer;
 }
 
 .radio-label input {
   margin-right: 8px;
+  margin-right: 0;
+}
+
+.radio-label span {
+  display: block;
+  text-align: center;
+  margin-top: 5px;
+  font-size: 14px;
 }
 
 .file-input {
@@ -136,10 +151,12 @@ body {
 .range-input {
   width: 100%;
   height: 8px;
-  background-color: #eee;
+  background: #e0e0e0;
   border-radius: 4px;
   outline: none;
   cursor: pointer;
+  -webkit-appearance: none; /* Remove default styling in WebKit browsers */
+  appearance: none;
 }
 
 .altura-value {
@@ -155,7 +172,7 @@ body {
 }
 
 .email-input {
-  width: 79%;
+  width: 70%;
   padding: 8px;
   border: 1px solid #ddd;
   margin-right: 1rem;
@@ -215,7 +232,7 @@ body {
   justify-content: center;
   border: 1px solid #eee;
   border-radius: 8px;
-  margin-bottom: 20px;
+  
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   overflow: visible; /* Importante para as cotas */
 }
@@ -323,16 +340,21 @@ body {
 }
 
 .resultado-title {
+  text-align: center;
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   color: #333;
 }
 
 .estimativa-label {
   color: #FF5207;
   font-weight: bold;
-  margin-top: 15px;
+  margin-bottom: 8px;
+}
+
+.estimativa-box{
+  margin-bottom:15px;
 }
 
 .hidden-canvas {
@@ -344,4 +366,110 @@ body {
 #canvas-container svg polygon {
   fill: black !important;
   stroke: none !important;
+}
+
+.email-title{
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.email-description{
+  color: #555;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+
+
+
+/* Custom styling for radio buttons */
+input[type="radio"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  outline: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Custom color for checked state */
+input[type="radio"]:checked {
+  border-color: #FF5207; /* Use your orange theme color */
+}
+
+/* Create the inner circle */
+input[type="radio"]:checked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #FF5207; /* Use your orange theme color */
+}
+
+/* Add focus styles for accessibility */
+input[type="radio"]:focus {
+  box-shadow: 0 0 0 2px rgba(255, 82, 7, 0.3); /* Lighter version of your orange */
+}
+
+
+
+
+
+
+/* Styling for the filled part (progress) of the slider */
+.range-input::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #FF5207 0%, #FF5207 var(--value-percent, 50%), #e0e0e0 var(--value-percent, 50%));
+}
+
+.range-input::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background-color: #e0e0e0;
+}
+
+.range-input::-moz-range-progress {
+  background-color: #FF5207;
+  height: 8px;
+  border-radius: 4px;
+}
+
+/* Styling for the slider thumb */
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: #FF5207;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -6px; /* Centers the thumb on the track */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.range-input::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background-color: #FF5207;
+  border: 2px solid white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Hover state */
+.range-input:hover::-webkit-slider-thumb {
+  background-color: #E04600;
+}
+
+.range-input:hover::-moz-range-thumb {
+  background-color: #E04600;
 }

@@ -205,12 +205,14 @@ function CalculoOrcamento() {
     
     if (tipo === '2') custo *= 2;
     
-    let html = `<p class="estimativa-label">Estimativa ${estimate}</p>`;
+    let html = '<div class="estimativa-box">';
+    html += `<p class="estimativa-label">Estimativa ${estimate}</p>`;
     html += `<p><strong>Altura da parede:</strong> ${altura} mm</p>`;
     html += `<p><strong>Espessura da parede:</strong> ${largura.toFixed(1)} mm</p>`;
     //html += (custoAcr > 0 ? `<p><strong>Cust. Acrílico:</strong> R$ ${custoAcr.toFixed(2)}</p>` : '');
     html += `<p><strong>Peso:</strong> ${peso.toFixed(2)} g</p>`;
     html += `<p><strong>Custo Total:</strong> R$ ${custo.toFixed(2)}</p>`;
+    html += '</div>';
     
     resultadoRef.current.innerHTML += html;
     estimate++;
@@ -220,14 +222,22 @@ function CalculoOrcamento() {
     if (fileInputRef.current) fileInputRef.current.value = '';
     if (canvasContainerRef.current) canvasContainerRef.current.innerHTML = '';
     if (resultadoRef.current) resultadoRef.current.innerHTML = '';
+
+    const canvasWrapper = document.getElementById('canvas-wrapper');
+    if (canvasWrapper) {
+      canvasWrapper.querySelectorAll('.wrapper-cota-h, .wrapper-cota-v, .wrapper-label-h, .wrapper-label-v').forEach(el => {
+        el.remove();
+      });
+    }
     
     if (sliderRef.current) sliderRef.current.value = 10;
     if (alturaLabelRef.current) alturaLabelRef.current.textContent = 10;
     if (espessuraInputRef.current) espessuraInputRef.current.value = 1;
-    if (precoInputRef.current) precoInputRef.current.value = 550;
+    //if (precoInputRef.current) precoInputRef.current.value = 550;
     
     svgShapes = [];
     svgBBox = null;
+    svgElement = null;
     areaReal = 0;
     perimeter = 0;
     estimate = 1;
@@ -308,27 +318,21 @@ function CalculoOrcamento() {
 
   return (
     <div className="orcamento-container">
-      <header className="orcamento-header">
-        <div className="header-content">
-          <img src="/logo.png" alt="Letrajato" className="logo-image" />
-          <h1 className="header-title">Orçamento Online Letras Impressas</h1>
-        </div>
-      </header>
       
       <main className="orcamento-main">
         <section className="parametros-section">
           <h2 className="section-title">Parâmetros de Impressão</h2>
-          <div className="form-container">
+          <div className="form-container orcamento-form-container">
             <div className="form-group">
               <label className="form-label">Tipo de modelagem</label>
               <div className="radio-group">
                 <label className="radio-label">
                   <input type="radio" name="tipoModelagem" value="1" defaultChecked />
-                  <span>Batente acrílico (interno)</span>
+                  <span>Batente acrílico<br/>(interno)</span>
                 </label>
                 <label className="radio-label">
                   <input type="radio" name="tipoModelagem" value="2" />
-                  <span>Caixa de sapato (externo)</span>
+                  <span>Caixa de sapato<br/>(externo)</span>
                 </label>
               </div>
             </div>
@@ -338,7 +342,7 @@ function CalculoOrcamento() {
               <div className="radio-group">
                 <label className="radio-label">
                   <input type="radio" name="acrilico" value="1" defaultChecked />
-                  <span>Com acrílico 3mm</span>
+                  <span>Com acrílico: 3mm</span>
                 </label>
                 <label className="radio-label">
                   <input type="radio" name="acrilico" value="2" />
@@ -405,19 +409,30 @@ function CalculoOrcamento() {
         
         <section className="visualizacao-section">
           <div id="canvas-wrapper" className="canvas-wrapper">
+            {svgElement &&
+            <div>
             <div className="wrapper-cota-h"></div>
             <div className="wrapper-cota-v"></div>
+            </div>
+            }
             <div id="canvas-container" ref={canvasContainerRef} className="canvas-container"></div>
+            {svgElement &&
+            <div>
             <div id="wrapper-label-w" className="wrapper-label-h"></div>
             <div id="wrapper-label-h" className="wrapper-label-v"></div>
+            </div>
+            }
           </div>
           
+          <h3 className="resultado-title">Resultados</h3>
           <div id="resultado" className="resultado" ref={resultadoRef}>
-            <h3 className="resultado-title">Resultados</h3>
+            
           </div>
 
           <div id="email-container" className="email-container">
             <h3 className="email-title">Enviar orçamento por e-mail</h3>
+            <p className="email-description">Insira seu e-mail para receber os resultados.</p>
+            <p className="email-description">O orçamento será enviado para nossa equipe, que entrará em contato brevemente.</p>
             <input 
               type="email"
               id="email"
