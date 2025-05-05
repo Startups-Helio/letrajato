@@ -10,6 +10,7 @@ from django.core.mail import EmailMultiAlternatives
 import requests
 from django.conf import settings
 import threading
+import uuid
 
 from .models import CustomUser
 # Create your views here.
@@ -58,6 +59,9 @@ class CreateUserView(generics.CreateAPIView):
     
     def _send_welcome_email(self, email, username, empresa, cnpj, consulta_data):
         try:
+            user = CustomUser.objects.get(email=email)
+            verification_url = f"https://api.letrajato.com.br/letrajato/verify/{user.verification_token}"
+
             cliente_subject = "Bem-vindo à Letrajato"
             cliente_plain_message = f"Bem-vindo à Letrajato, {username}! Seu registro foi efetuado com sucesso."
 
@@ -96,9 +100,10 @@ class CreateUserView(generics.CreateAPIView):
                     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                         <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                             <h2 style="color: #FF5207;">Uma nova solicitação de cadastro foi realizada!</h2>
-                            <p>Olá <strong>Otávio</strong>,</p>
-                            <p>Um novo revendedor solicitou registro no sistema. A solicitação foi realizada pelo usuário {username}</p>
-                            <p>para a empresa com nome {empresa}. Sua conta foi criada com sucesso e aguarda verificação.</p>
+                            <p>Olá <strong>Octávio</strong>,</p>
+                            <p>Um novo revendedor solicitou registro no sistema. A solicitação foi realizada pelo usuário {username} 
+                            para a empresa com nome {empresa}.</p>
+                            <p>A conta foi criada com sucesso e aguarda verificação.</p>
                             <p>Dados da empresa:</p>
                             <ul>
                                 <li><strong>CNPJ:</strong> {consulta_data.get('cnpj', 'N/A')}</li>
@@ -113,7 +118,7 @@ class CreateUserView(generics.CreateAPIView):
                                     {sec}
                                 </ul>
                             </ul>
-                            <p>Clique neste link para verificar o cadastro:</p>
+                            <p>Clique neste link para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -127,14 +132,15 @@ class CreateUserView(generics.CreateAPIView):
                     <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                         <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                             <h2 style="color: #FF5207;">Uma nova solicitação de cadastro foi realizada!</h2>
-                            <p>Olá <strong>Otávio</strong>,</p>
-                            <p>Um novo revendedor solicitou registro no sistema. A solicitação foi realizada pelo usuário {username}</p>
-                            <p>para a empresa com nome {empresa}. Sua conta foi criada com sucesso e aguarda verificação.</p>
+                            <p>Olá <strong>Octávio</strong>,</p>
+                            <p>Um novo revendedor solicitou registro no sistema. A solicitação foi realizada pelo usuário {username} 
+                            para a empresa com nome {empresa}.</p>
+                            <p>A conta foi criada com sucesso e aguarda verificação.</p>
                             <p>O CNPJ fornecido no cadastro não foi encontrado no sistema, portanto a verificação deve ser manual:</p>
                             <ul>
                                 <li><strong>CNPJ:</strong> {cnpj_formatado}</li>
                             </ul>
-                            <p>Clique neste link para verificar o cadastro:</p>
+                            <p>Clique neste link para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -230,3 +236,76 @@ class EmailSendView(APIView):
                 {"error": f"Failed to send email: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
+        
+class VerifyUserView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request, token, format=None):
+        try:
+            # Convert string to UUID (will raise ValueError if invalid format)
+            verification_token = uuid.UUID(token)
+            
+            # Find the user with this token
+            user = CustomUser.objects.get(verification_token=verification_token)
+            
+            # Mark as verified
+            user.verificado = True
+            user.save()
+            
+            # Optional: Send confirmation email
+            self._send_verification_confirmation(user)
+            
+            return Response(
+                {"success": "Account verified successfully"},
+                status=status.HTTP_200_OK
+            )
+            
+        except ValueError:
+            return Response(
+                {"error": "Invalid verification token format"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "Invalid verification token"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        except Exception as e:
+            return Response(
+                {"error": f"Verification failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def _send_verification_confirmation(self, user):
+        try:
+            subject = "Conta verificada com sucesso"
+            plain_message = f"Olá {user.username}, sua conta na Letrajato foi verificada com sucesso."
+            html_message = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #FF5207;">Conta Verificada!</h2>
+                            <p>Olá <strong>{user.username}</strong>,</p>
+                            <p>Sua conta para <strong>{user.nome_empresa}</strong> foi verificada com sucesso!</p>
+                            <p>Agora você tem acesso completo à plataforma Letrajato.</p>
+                            <p>Atenciosamente,<br>Equipe Letrajato</p>
+                        </div>
+                    </body>
+                </html>
+            """
+            
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=plain_message,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[user.email]
+            )
+            email_message.attach_alternative(html_message, "text/html")
+            email_message.send(fail_silently=True)
+        
+        except Exception as e:
+            print(f"Failed to send verification confirmation: {str(e)}")

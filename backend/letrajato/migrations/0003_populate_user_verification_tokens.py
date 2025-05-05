@@ -1,0 +1,18 @@
+from django.db import migrations
+import uuid
+
+def generate_uuid(apps, schema_editor):
+    CustomUser = apps.get_model('letrajato', 'CustomUser')
+    for user in CustomUser.objects.all():
+        user.verification_token = uuid.uuid4()
+        user.save()
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('letrajato', '0002_customuser_verificado_customuser_verification_token_and_more'),
+    ]
+
+    operations = [
+        migrations.RunPython(generate_uuid),
+    ]

@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from .managers import CustomUserManager
+import uuid
 
 # Create your models here.
 
@@ -20,11 +21,11 @@ class Note(models.Model):
 class CustomUser(AbstractUser):
 
     email = models.EmailField(unique=True)
-
-    username = models.CharField(max_length=150, unique=True)
-
+    username = models.CharField(max_length=150)
     cnpj = models.CharField(max_length=14)
     nome_empresa = models.CharField(max_length=255)
+    verificado = models.BooleanField(default=False)
+    verification_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'cnpj', 'nome_empresa']

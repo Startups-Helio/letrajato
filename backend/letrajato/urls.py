@@ -6,5 +6,6 @@ urlpatterns = [
     path("notes/delete/<int:pk>/", views.NoteDelete.as_view(), name="delete-note"),
     path("cnpj/<str:cnpj>/", views.CNPJProxyView.as_view(), name="cnpj-proxy"),
     path("send-email/", views.EmailSendView.as_view(), name="send-email"),
+    path("verify/<str:token>/", views.VerifyUserView.as_view(), name="verify-user"),
 
 ]
