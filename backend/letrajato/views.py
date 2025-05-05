@@ -11,6 +11,7 @@ import requests
 from django.conf import settings
 import threading
 import uuid
+from django.http import HttpResponse
 
 from .models import CustomUser
 # Create your views here.
@@ -238,7 +239,6 @@ class EmailSendView(APIView):
             )
         
 class VerifyUserView(APIView):
-
     authentication_classes = []
     permission_classes = [AllowAny]
 
@@ -257,28 +257,52 @@ class VerifyUserView(APIView):
             # Optional: Send confirmation email
             self._send_verification_confirmation(user)
             
-            return Response(
-                {"success": "Account verified successfully"},
-                status=status.HTTP_200_OK
-            )
+            # Return HTML with auto-close JavaScript instead of JSON Response
+            html_content = f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Verificação de Usuário</title>
+                    <script>
+                        // Auto-close after showing success message
+                        window.onload = function() {{
+                            setTimeout(function() {{
+                                window.close();
+                            }}, 1500);  // Close after 1.5 seconds
+                        }}
+                    </script>
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            text-align: center;
+                            padding-top: 100px;
+                        }}
+                        .success {{
+                            color: #4CAF50;
+                            font-size: 24px;
+                        }}
+                        .message {{
+                            margin-top: 20px;
+                            color: #666;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class="success">✓ Verificação concluída</div>
+                    <div class="message">O usuário {user.username} foi verificado com sucesso!</div>
+                    <div class="message">Esta janela será fechada automaticamente...</div>
+                </body>
+                </html>
+            """
+            
+            return HttpResponse(html_content, content_type='text/html')
             
         except ValueError:
-            return Response(
-                {"error": "Invalid verification token format"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-            
+            return HttpResponse("Token inválido", status=400)
         except CustomUser.DoesNotExist:
-            return Response(
-                {"error": "Invalid verification token"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-            
+            return HttpResponse("Usuário não encontrado", status=404)
         except Exception as e:
-            return Response(
-                {"error": f"Verification failed: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return HttpResponse(f"Erro: {str(e)}", status=500)
     
     def _send_verification_confirmation(self, user):
         try:
