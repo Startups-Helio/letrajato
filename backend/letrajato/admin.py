@@ -14,6 +14,8 @@ class CustomUserAdmin(UserAdmin):
         "username",
         "cnpj",
         "nome_empresa",
+        "verificado",
+        "verification_token",
         "is_staff",
         "is_active",
     ]
