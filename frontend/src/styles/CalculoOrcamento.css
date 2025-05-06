@@ -379,6 +379,18 @@ body {
   margin-bottom: 10px;
 }
 
+.email-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.email-button-container .btn {
+  min-width: 120px;
+  max-width: 200px;
+  width: auto;
+}
+
 
 
 

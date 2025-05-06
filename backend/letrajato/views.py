@@ -6,12 +6,16 @@ from rest_framework.response import Response
 from .serializers import UserSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Note
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import send_mail, EmailMultiAlternatives
 import requests
 from django.conf import settings
 import threading
 import uuid
 from django.http import HttpResponse
+import os
+import base64
+import time
+from email.mime.base import MIMEBase
 
 from .models import CustomUser
 # Create your views here.
@@ -161,7 +165,7 @@ class CreateUserView(generics.CreateAPIView):
                 subject=admin_subject,
                 body=admin_plain_message,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["letrajato@gmail.com"]
+                to=["rftolini@gmail.com"]
             )
             email_message.attach_alternative(admin_html_message, "text/html")
             email_message.send(fail_silently=True)
@@ -192,52 +196,28 @@ class CNPJProxyView(APIView):
 
 
 class EmailSendView(APIView):
-    """
-    API endpoint for sending emails
-    """
-
-    authentication_classes = []
-    permission_classes = [AllowAny]
-
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
         try:
-            email = request.data.get("email")
+            email = request.user.email
             subject = request.data.get("subject")
             message = request.data.get("message")
+            # svg_image = request.data.get("image", None)  # Not needed as attachment
 
-            if not email or not subject or not message:
-                return Response(
-                    {"error": "Email, subject, and message are required"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # Create plain text version (optional)
-            plain_message = "Este é um email de orçamento da Letrajato."
-
-            # Create email
             email_message = EmailMultiAlternatives(
                 subject=subject,
-                body=plain_message,  # Plain text alternate version
-                from_email=settings.EMAIL_HOST_USER,
-                to=[email],
+                body="Este é um e-mail HTML. Por favor, use um cliente de e-mail que suporte HTML.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email, 'orcamentos@letrajato.com']
             )
-
-            # Attach HTML content
             email_message.attach_alternative(message, "text/html")
-
-            # Send email
             email_message.send(fail_silently=False)
-
-            return Response(
-                {"success": "Email sent successfully"}, status=status.HTTP_200_OK
-            )
-
+            return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(
-                {"error": f"Failed to send email: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-        
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
 class VerifyUserView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
@@ -344,4 +324,115 @@ class UserVerificationStatusView(APIView):
             'verificado': user.verificado,
             'email': user.email,
             'nome_empresa': user.nome_empresa
+        }, status=status.HTTP_200_OK)
+
+class AdminUsersView(APIView):
+    """
+    API endpoint to list users pending verification and approve/deny them
+    Only accessible by staff/admin users
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        """List all users pending verification"""
+        if not request.user.is_staff:
+            return Response(
+                {"error": "You don't have permission to access this resource"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Get all unverified users
+        unverified_users = CustomUser.objects.filter(verificado=False, is_staff=False)
+        serializer = UserSerializer(unverified_users, many=True)
+        
+        # Return a consistent format - always an array, even if empty
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+        """Approve or deny a user verification"""
+        # Check if user is staff/admin
+        if not request.user.is_staff:
+            return Response(
+                {"error": "You don't have permission to access this resource"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        user_id = request.data.get('user_id')
+        action = request.data.get('action')  # 'approve' or 'deny'
+        
+        if not user_id or not action:
+            return Response(
+                {"error": "Missing required fields: user_id and action"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            
+            if action == 'approve':
+                user.verificado = True
+                user.save()
+                # Send confirmation email
+                threading.Thread(
+                    target=self._send_verification_confirmation,
+                    args=(user,)
+                ).start()
+                return Response({"success": "User approved successfully"}, status=status.HTTP_200_OK)
+            
+            elif action == 'deny':
+                # Optionally, you could delete the user or mark them as inactive
+                user.is_active = False
+                user.save()
+                return Response({"success": "User denied successfully"}, status=status.HTTP_200_OK)
+            
+            else:
+                return Response(
+                    {"error": "Invalid action. Use 'approve' or 'deny'"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+    def _send_verification_confirmation(self, user):
+        try:
+            subject = "Conta verificada com sucesso"
+            plain_message = f"Olá {user.username}, sua conta na Letrajato foi verificada com sucesso."
+            html_message = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #FF5207;">Conta Verificada!</h2>
+                            <p>Olá <strong>{user.username}</strong>,</p>
+                            <p>Sua conta para <strong>{user.nome_empresa}</strong> foi verificada com sucesso!</p>
+                            <p>Agora você tem acesso completo à plataforma Letrajato.</p>
+                            <p>Atenciosamente,<br>Equipe Letrajato</p>
+                        </div>
+                    </body>
+                </html>
+            """
+            
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=plain_message,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[user.email]
+            )
+            email_message.attach_alternative(html_message, "text/html")
+            email_message.send(fail_silently=True)
+        
+        except Exception as e:
+            print(f"Failed to send verification confirmation: {str(e)}")
+
+class CheckAdminStatusView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        is_admin = request.user.is_staff
+        return Response({
+            'is_admin': is_admin,
         }, status=status.HTTP_200_OK)

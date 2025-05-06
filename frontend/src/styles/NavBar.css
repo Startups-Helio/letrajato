@@ -47,3 +47,12 @@
 .nav-button:hover {
   background-color: #E04600;
 }
+
+.admin-link {
+  color: #FF5207;
+  font-weight: 600;
+}
+
+.admin-link:hover {
+  color: #E04600;
+}

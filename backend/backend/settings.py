@@ -196,3 +196,18 @@ EMAIL_HOST_USER = (
     "letrajato.suporte@gmail.com"  # Set in environment variables for production
 )
 EMAIL_HOST_PASSWORD = "bqqxsiafxuojkplz"
+
+
+SESSION_COOKIE_SAMESITE = None  # Change from 'Lax' to None for development
+CSRF_COOKIE_SAMESITE = None     # Change from 'Lax' to None for development
+
+# For local development with HTTP (not HTTPS), you must use:
+if DEBUG:
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_DOMAIN = None
+    SESSION_COOKIE_DOMAIN = None
+    
+    # For Chrome 80+ compatibility in local development
+    CSRF_COOKIE_SAMESITE = 'None' if not DEBUG else None  
+    SESSION_COOKIE_SAMESITE = 'None' if not DEBUG else None
