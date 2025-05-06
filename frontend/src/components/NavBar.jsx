@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import api from "../api";
 import "../styles/NavBar.css";
@@ -9,10 +8,13 @@ function NavBar() {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isRevendedor, setIsRevendedor] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
       checkAdminStatus();
+      checkUserStatus();
     }
   }, [isAuthenticated]);
 
@@ -22,6 +24,18 @@ function NavBar() {
       setIsAdmin(response.data.is_admin);
     } catch (error) {
       console.error("Failed to check admin status", error);
+    }
+  };
+
+  const checkUserStatus = async () => {
+    try {
+      const response = await api.get('/letrajato/verify-status/');
+      if (response.status === 200) {
+        setIsRevendedor(response.data.is_revendedor);
+        setVerified(response.data.verificado);
+      }
+    } catch (error) {
+      console.error('Error checking user status:', error);
     }
   };
 
@@ -39,7 +53,9 @@ function NavBar() {
         <Link to="/" className="nav-link">Início</Link>
         {isAuthenticated ? (
           <>
-            <Link to="/orcamento" className="nav-link">Orçamento</Link>
+            {isRevendedor && verified && (
+              <Link to="/orcamento" className="nav-link">Orçamento</Link>
+            )}
             {isAdmin && <Link to="/admin" className="nav-link admin-link">Admin</Link>}
             <button onClick={handleLogout} className="nav-button">Sair</button>
           </>
