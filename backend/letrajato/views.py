@@ -333,3 +333,15 @@ class VerifyUserView(APIView):
         
         except Exception as e:
             print(f"Failed to send verification confirmation: {str(e)}")
+
+class UserVerificationStatusView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({
+            'verificado': user.verificado,
+            'email': user.email,
+            'nome_empresa': user.nome_empresa
+        }, status=status.HTTP_200_OK)

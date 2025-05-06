@@ -7,6 +7,8 @@ import Home from "./pages/Home"
 import LandingPage from "./pages/LandingPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import Orcamento from "./pages/Orcamento"
+import VerifiedRoute from "./components/VerifiedRoute"
+import VerificationPending from "./pages/VerificationPending"
 
 function Logout(){
   localStorage.clear()
@@ -32,7 +34,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/orcamento" element = {<ProtectedRoute><Orcamento /></ProtectedRoute>}/>
+        <Route path="/orcamento" element = {
+            <ProtectedRoute>
+              <VerifiedRoute>
+                <Orcamento />
+              </VerifiedRoute>
+            </ProtectedRoute>
+        }
+        />
+        <Route path="/verification-pending" element={<ProtectedRoute><VerificationPending /></ProtectedRoute>} />
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>
