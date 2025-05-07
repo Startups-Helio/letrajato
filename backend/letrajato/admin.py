@@ -27,8 +27,8 @@ class CustomUserAdmin(UserAdmin):
         "is_staff", "is_superuser", "date_joined", "last_login"
     ]
     
-    # Better filtering options
-    list_filter = ("is_staff", "is_active", RevendedorInline.model.verificado.field.name)
+    # Fix the list_filter - remove the reference to RevendedorInline.model.verificado
+    list_filter = ("is_staff", "is_active")  # Remove the reference to verificado
     search_fields = ("email", "username")
     ordering = ("-date_joined",)
     
