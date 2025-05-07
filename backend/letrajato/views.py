@@ -5,17 +5,17 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Note
-from django.core.mail import EmailMultiAlternatives
+from .models import Note, CustomUser, Revendedor
+from django.core.mail import send_mail, EmailMultiAlternatives
 import requests
 from django.conf import settings
 import threading
 import uuid
 from django.http import HttpResponse
-
-from .models import CustomUser
-# Create your views here.
-
+import os
+import base64
+import time
+from email.mime.base import MIMEBase
 
 class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
@@ -48,20 +48,20 @@ class CreateUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-
         user = serializer.save()
-
+        
         consulta_data = serializer.context.get('consulta_data', {})
         
         threading.Thread(
             target=self._send_welcome_email,
-            args=(user.email, user.username, user.nome_empresa, user.cnpj, consulta_data)
+            args=(user.email, user.username, user.revendedor.nome_empresa, user.revendedor.cnpj, consulta_data)
         ).start()
     
     def _send_welcome_email(self, email, username, empresa, cnpj, consulta_data):
         try:
             user = CustomUser.objects.get(email=email)
-            verification_url = f"https://api.letrajato.com.br/letrajato/verify/{user.verification_token}"
+            revendedor = user.revendedor
+            verification_url = f"https://letrajato.com.br/admin"
 
             cliente_subject = "Bem-vindo à Letrajato"
             cliente_plain_message = f"Bem-vindo à Letrajato, {username}! Seu registro foi efetuado com sucesso."
@@ -119,7 +119,7 @@ class CreateUserView(generics.CreateAPIView):
                                     {sec}
                                 </ul>
                             </ul>
-                            <p>Clique neste link para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
+                            <p>Entre no Admin Dashboard para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -141,7 +141,7 @@ class CreateUserView(generics.CreateAPIView):
                             <ul>
                                 <li><strong>CNPJ:</strong> {cnpj_formatado}</li>
                             </ul>
-                            <p>Clique neste link para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
+                            <p>Entre no Admin Dashboard para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -192,72 +192,44 @@ class CNPJProxyView(APIView):
 
 
 class EmailSendView(APIView):
-    """
-    API endpoint for sending emails
-    """
-
-    authentication_classes = []
-    permission_classes = [AllowAny]
-
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
         try:
-            email = request.data.get("email")
+            email = request.user.email
             subject = request.data.get("subject")
             message = request.data.get("message")
+            # svg_image = request.data.get("image", None)
 
-            if not email or not subject or not message:
-                return Response(
-                    {"error": "Email, subject, and message are required"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            # Create plain text version (optional)
-            plain_message = "Este é um email de orçamento da Letrajato."
-
-            # Create email
             email_message = EmailMultiAlternatives(
                 subject=subject,
-                body=plain_message,  # Plain text alternate version
-                from_email=settings.EMAIL_HOST_USER,
-                to=[email],
+                body="Este é um e-mail HTML. Por favor, use um cliente de e-mail que suporte HTML.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email, 'orcamentos@letrajato.com']
             )
-
-            # Attach HTML content
             email_message.attach_alternative(message, "text/html")
-
-            # Send email
             email_message.send(fail_silently=False)
-
-            return Response(
-                {"success": "Email sent successfully"}, status=status.HTTP_200_OK
-            )
-
+            return Response({"message": "Email sent successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(
-                {"error": f"Failed to send email: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-        
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+#?????
 class VerifyUserView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request, token, format=None):
         try:
-            # Convert string to UUID (will raise ValueError if invalid format)
+
             verification_token = uuid.UUID(token)
+            revendedor = Revendedor.objects.get(verification_token=verification_token)
+            revendedor.verificado = True
+            revendedor.save()
             
-            # Find the user with this token
-            user = CustomUser.objects.get(verification_token=verification_token)
+            user = revendedor.user
             
-            # Mark as verified
-            user.verificado = True
-            user.save()
+            self._send_verification_confirmation(user, revendedor)
             
-            # Optional: Send confirmation email
-            self._send_verification_confirmation(user)
-            
-            # Return HTML with auto-close JavaScript instead of JSON Response
             html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -299,12 +271,12 @@ class VerifyUserView(APIView):
             
         except ValueError:
             return HttpResponse("Token inválido", status=400)
-        except CustomUser.DoesNotExist:
-            return HttpResponse("Usuário não encontrado", status=404)
+        except Revendedor.DoesNotExist:
+            return HttpResponse("Revendedor não encontrado", status=404)
         except Exception as e:
             return HttpResponse(f"Erro: {str(e)}", status=500)
     
-    def _send_verification_confirmation(self, user):
+    def _send_verification_confirmation(self, user, revendedor):
         try:
             subject = "Conta verificada com sucesso"
             plain_message = f"Olá {user.username}, sua conta na Letrajato foi verificada com sucesso."
@@ -314,8 +286,8 @@ class VerifyUserView(APIView):
                         <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
                             <h2 style="color: #FF5207;">Conta Verificada!</h2>
                             <p>Olá <strong>{user.username}</strong>,</p>
-                            <p>Sua conta para <strong>{user.nome_empresa}</strong> foi verificada com sucesso!</p>
-                            <p>Agora você tem acesso completo à plataforma Letrajato.</p>
+                            <p>Sua conta para <strong>{revendedor.nome_empresa}</strong> foi verificada com sucesso!</p>
+                            <p>Agora você é um de nossos parceiros e tem acesso completo à plataforma Letrajato!</p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -334,14 +306,196 @@ class VerifyUserView(APIView):
         except Exception as e:
             print(f"Failed to send verification confirmation: {str(e)}")
 
-class UserVerificationStatusView(APIView):
 
+class UserVerificationStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        return Response({
-            'verificado': user.verificado,
+        is_revendedor = hasattr(user, 'revendedor')
+        
+        data = {
             'email': user.email,
-            'nome_empresa': user.nome_empresa
+            'is_revendedor': is_revendedor
+        }
+        
+        if is_revendedor:
+            data['verificado'] = user.revendedor.verificado
+            data['nome_empresa'] = user.revendedor.nome_empresa
+            data['cnpj'] = user.revendedor.cnpj
+        else:
+            data['verificado'] = False
+            
+        return Response(data, status=status.HTTP_200_OK)
+
+class AdminUsersView(APIView):
+
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+
+        if not request.user.is_staff:
+            return Response(
+                {"error": "You don't have permission to access this resource"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        unverified_revendedores = Revendedor.objects.filter(verificado=False)
+        users_to_verify = [r.user for r in unverified_revendedores]
+        
+        serializer = UserSerializer(users_to_verify, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def post(self, request):
+
+        if not request.user.is_staff:
+            return Response(
+                {"error": "You don't have permission to access this resource"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        user_id = request.data.get('user_id')
+        action = request.data.get('action')
+        
+        if not user_id or action not in ['approve', 'deny']:
+            return Response(
+                {"error": "Missing required parameters or invalid action"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            
+            if not hasattr(user, 'revendedor'):
+                return Response(
+                    {"error": "User is not a revendedor"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            if action == 'approve':
+
+                user.revendedor.verificado = True
+                user.revendedor.save()
+                
+                self._send_approval_email(user)
+                
+                return Response(
+                    {"message": "Revendedor approved successfully"},
+                    status=status.HTTP_200_OK
+                )
+            else:
+
+                user.revendedor.delete()
+                
+                self._send_denial_email(user)
+                
+                return Response(
+                    {"message": "Revendedor denied, converted to normal user"},
+                    status=status.HTTP_200_OK
+                )
+                
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+    def _send_approval_email(self, user):
+
+        try:
+            subject = "Cadastro de Revendedor Aprovado - Letrajato"
+            message = f"""
+                Olá {user.username},
+                
+                Temos o prazer de informar que seu cadastro como revendedor foi aprovado!
+                Agora você tem acesso a todos os recursos de revendedor na plataforma Letrajato.
+                
+                Atenciosamente,
+                Equipe Letrajato
+            """
+            
+            html_message = f"""
+            <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #ff5722;">Cadastro de Revendedor Aprovado!</h2>
+                        <p>Olá <strong>{user.username}</strong>,</p>
+                        <p>Temos o prazer de informar que seu cadastro como revendedor foi <strong style="color: green;">aprovado</strong>!</p>
+                        <p>Agora você tem acesso a todos os recursos de revendedor na plataforma Letrajato, incluindo:</p>
+                        <ul>
+                            <li>Cálculo de orçamentos avançado</li>
+                            <li>Preços exclusivos de revendedor</li>
+                            <li>Acesso à área de revendedor</li>
+                        </ul>
+                        <p>Entre agora mesmo e aproveite todos os benefícios!</p>
+                        <p>Atenciosamente,<br>Equipe Letrajato</p>
+                    </div>
+                </body>
+            </html>
+            """
+            
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email]
+            )
+            email_message.attach_alternative(html_message, "text/html")
+            email_message.send()
+            
+        except Exception as e:
+            print(f"Failed to send approval email: {str(e)}")
+    
+    def _send_denial_email(self, user):
+
+        try:
+            subject = "Atualização do seu Cadastro - Letrajato"
+            message = f"""
+                Olá {user.username},
+                
+                Lamentamos informar que seu cadastro como revendedor não foi aprovado neste momento.
+                No entanto, seu cadastro foi mantido e você pode acessar
+                a plataforma Letrajato normalmente.
+                
+                Caso tenha dúvidas, entre em contato com nossa equipe de suporte.
+                
+                Atenciosamente,
+                Equipe Letrajato
+            """
+            
+            html_message = f"""
+            <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                        <h2 style="color: #ff5722;">Atualização do seu Cadastro</h2>
+                        <p>Olá <strong>{user.username}</strong>,</p>
+                        <p>Informamos que seu cadastro como revendedor não foi aprovado neste momento.</p>
+                        <p>No entanto, <strong>seu cadastro foi mantido</strong>, e você pode acessar a plataforma Letrajato normalmente.</p>
+                        <p>Caso tenha dúvidas ou queira mais informações, entre em contato com nossa equipe de suporte.</p>
+                        <p>Atenciosamente,<br>Equipe Letrajato</p>
+                    </div>
+                </body>
+            </html>
+            """
+            
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[user.email]
+            )
+            email_message.attach_alternative(html_message, "text/html")
+            email_message.send()
+            
+        except Exception as e:
+            print(f"Failed to send denial email: {str(e)}")
+
+class CheckAdminStatusView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        is_admin = request.user.is_staff
+        return Response({
+            'is_admin': is_admin,
         }, status=status.HTTP_200_OK)

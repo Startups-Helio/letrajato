@@ -1,4 +1,4 @@
-import React from "react"
+import React, {useState, useEffect} from "react"
 import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom"
 import Login from "./pages/Login"
 import Register from "./pages/Register"
@@ -9,6 +9,34 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import Orcamento from "./pages/Orcamento"
 import VerifiedRoute from "./components/VerifiedRoute"
 import VerificationPending from "./pages/VerificationPending"
+import Admin from "./pages/Admin"
+import api from "./api" 
+
+function AdminRoute({ children }) {
+  const [isAdmin, setIsAdmin] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const response = await api.get('/letrajato/check-admin/');
+        setIsAdmin(response.data.is_admin);
+      } catch (error) {
+        setIsAdmin(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAdminStatus();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return isAdmin ? children : <Navigate to="/home" />;
+}
 
 function Logout(){
   localStorage.clear()
@@ -42,10 +70,22 @@ function App() {
             </ProtectedRoute>
         }
         />
-        <Route path="/verification-pending" element={<ProtectedRoute><VerificationPending /></ProtectedRoute>} />
+        <Route path="/verification-pending" element={
+            <ProtectedRoute>
+              <VerificationPending />
+            </ProtectedRoute>
+        }
+        />
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminRoute>
+              <Admin />
+            </AdminRoute>
+          </ProtectedRoute>
+        }/>
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </>

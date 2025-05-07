@@ -17,7 +17,7 @@ function Form({ route, method, onSuccess }) {
       const res = await api.post(route, { email, password });
       // usa função de contexto para armazenar tokens
       await login(email, password);
-      navigate('/orcamento');
+      navigate('/home');
       if (onSuccess) onSuccess({ email, password });
     } catch (err) {
       setError('Credenciais inválidas. Tente novamente.');

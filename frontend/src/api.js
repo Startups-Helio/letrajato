@@ -1,12 +1,28 @@
 import axios from "axios";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "./constants";
 
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || "", withCredentials: true});
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true
+});
 
-api.interceptors.request.use(cfg => {
+api.interceptors.request.use(config => {
   const token = localStorage.getItem(ACCESS_TOKEN);
-  if (token) cfg.headers.Authorization = `Bearer ${token}`;
-  return cfg;
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  const csrfToken = document.cookie
+    .split("; ")
+    .find(row => row.startsWith("csrftoken="))
+    ?.split("=")[1];
+
+  if (csrfToken) {
+    config.headers["X-CSRFToken"] = csrfToken;
+  }
+
+  return config;
 });
 
 api.interceptors.response.use(

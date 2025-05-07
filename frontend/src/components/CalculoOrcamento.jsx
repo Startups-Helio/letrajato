@@ -11,7 +11,6 @@ function CalculoOrcamento() {
   const alturaLabelRef = useRef(null);
   const espessuraInputRef = useRef(null);
 
-  const [email, setEmail] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
 
   // Variáveis globais
@@ -210,7 +209,7 @@ function CalculoOrcamento() {
     html += `<p><strong>Altura da parede:</strong> ${altura} mm</p>`;
     html += `<p><strong>Espessura da parede:</strong> ${largura.toFixed(1)} mm</p>`;
     //html += (custoAcr > 0 ? `<p><strong>Cust. Acrílico:</strong> R$ ${custoAcr.toFixed(2)}</p>` : '');
-    html += `<p><strong>Peso:</strong> ${peso.toFixed(2)} g</p>`;
+    //html += `<p><strong>Peso:</strong> ${peso.toFixed(2)} g</p>`;
     html += `<p><strong>Custo Total:</strong> R$ ${custo.toFixed(2)}</p>`;
     html += '</div>';
     
@@ -244,11 +243,6 @@ function CalculoOrcamento() {
   };
 
   const handleSendEmail = async () => {
-    if (!email) {
-      alert('Por favor, insira um endereço de e-mail válido.');
-      return;
-    }
-    
     if (!resultadoRef.current || !resultadoRef.current.innerHTML.includes('Estimativa')) {
       alert('Realize pelo menos um cálculo antes de enviar o orçamento.');
       return;
@@ -262,14 +256,48 @@ function CalculoOrcamento() {
       
       // Get SVG data if available
       let svgData = '';
+      let imageDataUrl = '';
+      
       if (svgElement) {
         const svgWidth = (svgBBox.width * svgScale / 10).toFixed(2);
         const svgHeight = (svgBBox.height * svgScale / 10).toFixed(2);
+        
+        // SVG text information
         svgData = `
           <p><strong>Dimensões SVG:</strong> ${svgWidth} cm x ${svgHeight} cm</p>
           <p><strong>Área:</strong> ${(areaReal / 100).toFixed(2)} cm²</p>
           <p><strong>Perímetro:</strong> ${(perimeter / 10).toFixed(2)} cm</p>
         `;
+        
+        try {
+          // Use canvas to render the SVG to PNG for the email
+          const canvas = canvasRef.current;
+          canvas.width = svgBBox.width * svgScale;
+          canvas.height = svgBBox.height * svgScale;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          const svgClone = svgElement.cloneNode(true);
+          const svgString = new XMLSerializer().serializeToString(svgClone);
+          const svgBlob = new Blob([svgString], { type: 'image/svg+xml' });
+          const svgUrl = URL.createObjectURL(svgBlob);
+          
+          // Draw SVG to canvas and get data URL
+          await new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              ctx.drawImage(img, 0, 0);
+              imageDataUrl = canvas.toDataURL('image/png');
+              URL.revokeObjectURL(svgUrl);
+              resolve();
+            };
+            img.src = svgUrl;
+          });
+        } catch (error) {
+          console.error('Failed to convert SVG to image:', error);
+        }
       }
       
       // Prepare email content
@@ -278,38 +306,49 @@ function CalculoOrcamento() {
         <html>
           <head>
             <style>
-              body { font-family: Arial, sans-serif; }
-              h2 { color: #333; }
-              .estimate { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+              body { font-family: Arial, sans-serif; color: #333; line-height: 1.5; }
+              h2 { color: #ff5722; border-bottom: 2px solid #ff5722; padding-bottom: 10px; }
+              .svg-details { background-color: #f5f5f5; padding: 15px; border-radius: 5px; }
+              .svg-container { text-align: center; margin: 20px 0; }
+              .estimate-results { margin-top: 20px; }
+              .estimativa-box { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+              .estimativa-label { font-weight: bold; color: #ff5722; }
+              strong { color: #555; }
             </style>
           </head>
           <body>
             <h2>Orçamento Letrajato</h2>
-            <div>
+            <div class="svg-details">
               ${svgData}
-              <div class="estimate-results">
-                ${resultadosHTML}
-              </div>
             </div>
-            <p>Agradecemos seu interesse em nossos serviços!</p>
+            ${imageDataUrl ? `
+              <div class="svg-container">
+                <img src="${imageDataUrl}" alt="Design SVG" style="max-width:100%; border:1px solid #ddd; margin:10px 0; background-color:white;" />
+              </div>
+            ` : ''}
+            <div class="estimate-results">
+              ${resultadosHTML}
+            </div>
+            <p style="margin-top: 30px;">Agradecemos seu interesse em nossos serviços!</p>
+            <p style="color: #777;">Equipe Letrajato</p>
           </body>
         </html>
       `;
       
-      // Send email through API
+      // Send email through API with the image data
       const response = await api.post('/letrajato/send-email/', {
-        email,
         subject,
-        message
+        message,
+        image: imageDataUrl
       });
       
       if (response.status === 200) {
         alert('Orçamento enviado com sucesso!');
-        setEmail(''); // Clear email field
       } else {
         throw new Error('Falha ao enviar e-mail.');
       }
     } catch (error) {
+      console.error('Error sending email:', error);
       alert(`Erro ao enviar o e-mail: ${error.message}`);
     } finally {
       setSendingEmail(false);
@@ -431,23 +470,17 @@ function CalculoOrcamento() {
 
           <div id="email-container" className="email-container">
             <h3 className="email-title">Enviar orçamento por e-mail</h3>
-            <p className="email-description">Insira seu e-mail para receber os resultados.</p>
+            <p className="email-description">Receba os resultados gerados em seu e-mail cadastrado.</p>
             <p className="email-description">O orçamento será enviado para nossa equipe, que entrará em contato brevemente.</p>
-            <input 
-              type="email"
-              id="email"
-              className="email-input"
-              placeholder="Seu e-mail"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <button
-              id="btnEnviar"
-              className="btn btn-primary"
-              onClick={handleSendEmail}
-              disabled={sendingEmail}>
-                {sendingEmail ? 'Enviando...' : 'Enviar'}
-            </button>
+            <div className="email-button-container">
+              <button
+                id="btnEnviar"
+                className="btn btn-primary"
+                onClick={handleSendEmail}
+                disabled={sendingEmail}>
+                  {sendingEmail ? 'Enviando...' : 'Enviar'}
+              </button>
+            </div>
           </div>
         </section>
       </main>
