@@ -39,7 +39,8 @@ class UserSerializer(serializers.ModelSerializer):
             user=user,
             cnpj=cnpj,
             nome_empresa=nome_empresa,
-            verificado=False
+            verificado=False,
+            cnpj_data=consulta_data 
         )
 
         if consulta_data:
@@ -54,6 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
             data['verificado'] = instance.revendedor.verificado
             data['cnpj'] = instance.revendedor.cnpj
             data['nome_empresa'] = instance.revendedor.nome_empresa
+            data['cnpj_data'] = instance.revendedor.cnpj_data
         else:
             data['is_revendedor'] = False
             data['verificado'] = True

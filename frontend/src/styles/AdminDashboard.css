@@ -1,7 +1,7 @@
 .admin-dashboard {
+    padding: 1.5rem;
     max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 20px;
+    margin: 0 auto;
   }
   
   .admin-dashboard h2 {
@@ -23,18 +23,16 @@
   }
   
   .refresh-button {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 10px 15px;
+    padding: 0.5rem 1rem;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.9rem;
-    transition: background-color 0.3s;
   }
   
   .refresh-button:hover {
-    background-color: #45a049;
+    background-color: #e0e0e0;
   }
   
   .refresh-button:disabled {
@@ -49,72 +47,69 @@
   .users-table {
     width: 100%;
     border-collapse: collapse;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    background-color: white;
-  }
-  
-  .users-table th,
-  .users-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
   }
   
   .users-table th {
-    background-color: #f8f9fa;
+    background-color: #f5f5f5;
+    padding: 0.8rem 1rem;
+    text-align: left;
     font-weight: 600;
-    color: #555;
+    color: #333;
+    border-bottom: 2px solid #ddd;
   }
   
-  .users-table tr:hover {
-    background-color: #f5f5f5;
+  .users-table td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+  }
+  
+  .users-table tr:last-child td {
+    border-bottom: none;
   }
   
   .action-buttons {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+  }
+  
+  .approve-button,
+  .deny-button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
   }
   
   .approve-button {
     background-color: #4caf50;
     color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
   }
   
   .approve-button:hover {
-    background-color: #45a049;
+    background-color: #3e8e41;
   }
   
   .deny-button {
     background-color: #f44336;
     color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
   }
   
   .deny-button:hover {
     background-color: #d32f2f;
   }
   
-  .approve-button:disabled,
-  .deny-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-  
   .no-users {
+    background-color: #f9f9f9;
+    border-radius: 8px;
     padding: 2rem;
     text-align: center;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    color: #666;
   }
   
   .error-container {
@@ -124,4 +119,113 @@
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     color: #b71c1c;
+  }
+  
+  .toggle-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0 5px;
+    color: #555;
+  }
+  
+  .expanded-row {
+    background-color: #f8f8ff;
+  }
+  
+  .cnpj-details-row td {
+    padding: 0;
+  }
+  
+  .cnpj-details-container {
+    background-color: #f5f7fa;
+    padding: 1.5rem;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .cnpj-data {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  
+  .cnpj-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .cnpj-section h4 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+  }
+  
+  .cnpj-section table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .cnpj-section td {
+    padding: 6px 0;
+    border-bottom: none;
+  }
+  
+  .field-label {
+    font-weight: 600;
+    color: #555;
+    width: 40%;
+  }
+  
+  .no-cnpj-data,
+  .cnpj-error {
+    padding: 1rem;
+    text-align: center;
+    color: #666;
+    border: 1px dashed #ccc;
+    border-radius: 6px;
+  }
+  
+  .cnpj-error {
+    color: #f44336;
+    border-color: #f44336;
+  }
+  
+  .cnpj-section ul {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-left: 20px;
+    margin: 0;
+  }
+  
+  .cnpj-section li {
+    margin-bottom: 6px;
+  }
+  
+  .cnpj-section li:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Make the component responsive */
+  @media (max-width: 1024px) {
+    .cnpj-data {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .users-table {
+      font-size: 0.9rem;
+    }
+    
+    .users-table th,
+    .users-table td {
+      padding: 0.6rem;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+      gap: 5px;
+    }
   }

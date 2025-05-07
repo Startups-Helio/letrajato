@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser, Revendedor, Note
@@ -74,12 +75,37 @@ class RevendedorAdmin(admin.ModelAdmin):
     list_filter = ["verificado"]
     search_fields = ["nome_empresa", "cnpj", "user__email", "user__username"]
     
-    # Remove verification_token from fieldsets
-    fieldsets = (
-        (None, {
-            'fields': ('user', 'cnpj', 'nome_empresa', 'verificado')  # Remove verification_token
-        }),
-    )
+    readonly_fields = ['display_cnpj_data']
+    
+    def display_cnpj_data(self, obj):
+        """Display key CNPJ data in the admin"""
+        if not obj.cnpj_data:
+            return "No CNPJ data available"
+        
+        html = "<table style='border-collapse: collapse; width: 100%;'>"
+        html += "<tr><th style='border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;'>Campo</th><th style='border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f2f2f2;'>Valor</th></tr>"
+        
+        important_fields = [
+            'nome', 'cnpj', 'abertura', 'situacao', 'tipo', 'uf', 
+            'municipio', 'bairro', 'logradouro', 'numero', 
+            'telefone', 'email', 'capital_social'
+        ]
+        
+        for field in important_fields:
+            if field in obj.cnpj_data:
+                html += f"<tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>{field}</strong></td><td style='border: 1px solid #ddd; padding: 8px;'>{obj.cnpj_data[field]}</td></tr>"
+        
+        # Add atividades principais
+        if 'atividade_principal' in obj.cnpj_data and obj.cnpj_data['atividade_principal']:
+            html += "<tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>atividade_principal</strong></td><td style='border: 1px solid #ddd; padding: 8px;'><ul>"
+            for atividade in obj.cnpj_data['atividade_principal']:
+                html += f"<li>{atividade.get('text', '')}</li>"
+            html += "</ul></td></tr>"
+            
+        html += "</table>"
+        return mark_safe(html)
+    
+    display_cnpj_data.short_description = "CNPJ Data"
 
 
 class NoteAdmin(admin.ModelAdmin):

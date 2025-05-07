@@ -161,7 +161,7 @@ class CreateUserView(generics.CreateAPIView):
                 subject=admin_subject,
                 body=admin_plain_message,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["letrajato@gmail.com"]
+                to=["rftolini@gmail.com"]
             )
             email_message.attach_alternative(admin_html_message, "text/html")
             email_message.send(fail_silently=True)
@@ -340,11 +340,25 @@ class AdminUsersView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
+        # Get all unverified revendedores
         unverified_revendedores = Revendedor.objects.filter(verificado=False)
-        users_to_verify = [r.user for r in unverified_revendedores]
+        users_data = []
         
-        serializer = UserSerializer(users_to_verify, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        for revendedor in unverified_revendedores:
+            user = revendedor.user
+            user_data = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "nome_empresa": revendedor.nome_empresa,
+                "cnpj": revendedor.cnpj,
+                "cnpj_data": revendedor.cnpj_data,  # Include CNPJ data in response
+                "is_revendedor": True,
+                "verificado": False
+            }
+            users_data.append(user_data)
+        
+        return Response(users_data, status=status.HTTP_200_OK)
     
     def post(self, request):
 

@@ -38,6 +38,8 @@ class Revendedor(models.Model):
     nome_empresa = models.CharField(max_length=255)
     verificado = models.BooleanField(default=False)
     verification_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    cnpj_data = models.JSONField(null=True, blank=True)
+
     
     def __str__(self):
         return f"Revendedor: {self.user.email} - {self.nome_empresa}"

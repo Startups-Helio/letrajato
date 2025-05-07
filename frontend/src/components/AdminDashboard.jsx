@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import api from '../api';
-import '../styles/AdminDashboard.css';
-import LoadingIndicator from './LoadingIndicator';
+import React, { useState, useEffect } from "react";
+import api from "../api";
+import "../styles/AdminDashboard.css";
 
 function AdminDashboard() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [actionInProgress, setActionInProgress] = useState(false);
+    const [expandedUser, setExpandedUser] = useState(null);
     
     useEffect(() => {
         loadUsers();
@@ -38,14 +38,133 @@ function AdminDashboard() {
             
         } catch (error) {
             console.error(`Error ${action}ing user:`, error);
-            alert(`Failed to ${action} user. Please try again.`);
+            alert(`Falha ao ${action === 'approve' ? 'aprovar' : 'rejeitar'} usuário. Tente novamente.`);
         } finally {
             setActionInProgress(false);
         }
     };
     
+    const toggleUserExpand = (userId) => {
+        if (expandedUser === userId) {
+            setExpandedUser(null);
+        } else {
+            setExpandedUser(userId);
+        }
+    };
+    
+    const renderCNPJData = (cnpjData) => {
+        if (!cnpjData) return <div className="no-cnpj-data">Sem dados de CNPJ disponíveis</div>;
+        
+        // Check for error in the CNPJ data
+        if (cnpjData.error) {
+            return <div className="cnpj-error">Erro: {cnpjData.error}</div>;
+        }
+        
+        const importantFields = [
+            { key: 'nome', label: 'Nome oficial' },
+            { key: 'fantasia', label: 'Nome fantasia' },
+            { key: 'situacao', label: 'Situação' },
+            { key: 'tipo', label: 'Tipo' },
+            { key: 'abertura', label: 'Data de abertura' },
+            { key: 'capital_social', label: 'Capital social' },
+            { key: 'natureza_juridica', label: 'Natureza jurídica' },
+            { key: 'porte', label: 'Porte' }
+        ];
+        
+        const addressFields = [
+            { key: 'logradouro', label: 'Endereço' },
+            { key: 'numero', label: 'Número' },
+            { key: 'complemento', label: 'Complemento' },
+            { key: 'bairro', label: 'Bairro' },
+            { key: 'municipio', label: 'Município' },
+            { key: 'uf', label: 'UF' },
+            { key: 'cep', label: 'CEP' }
+        ];
+        
+        const contactFields = [
+            { key: 'telefone', label: 'Telefone' },
+            { key: 'email', label: 'Email' }
+        ];
+        
+        return (
+            <div className="cnpj-data">
+                <div className="cnpj-section">
+                    <h4>Dados básicos da empresa</h4>
+                    <table>
+                        <tbody>
+                            {importantFields.map(field => 
+                                cnpjData[field.key] ? (
+                                    <tr key={field.key}>
+                                        <td className="field-label">{field.label}:</td>
+                                        <td className="field-value">{cnpjData[field.key]}</td>
+                                    </tr>
+                                ) : null
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div className="cnpj-section">
+                    <h4>Endereço</h4>
+                    <table>
+                        <tbody>
+                            {addressFields.map(field => 
+                                cnpjData[field.key] ? (
+                                    <tr key={field.key}>
+                                        <td className="field-label">{field.label}:</td>
+                                        <td className="field-value">{cnpjData[field.key]}</td>
+                                    </tr>
+                                ) : null
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div className="cnpj-section">
+                    <h4>Contato</h4>
+                    <table>
+                        <tbody>
+                            {contactFields.map(field => 
+                                cnpjData[field.key] ? (
+                                    <tr key={field.key}>
+                                        <td className="field-label">{field.label}:</td>
+                                        <td className="field-value">{cnpjData[field.key]}</td>
+                                    </tr>
+                                ) : null
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {/* Atividade Principal Section */}
+                {cnpjData.atividade_principal && cnpjData.atividade_principal.length > 0 && (
+                    <div className="cnpj-section">
+                        <h4>Atividade Principal</h4>
+                        <ul>
+                            {cnpjData.atividade_principal.map((atividade, index) => (
+                                <li key={index}>{atividade.text}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+                
+                {/* Atividades Secundárias Section - New addition */}
+                {cnpjData.atividades_secundarias && cnpjData.atividades_secundarias.length > 0 && (
+                    <div className="cnpj-section">
+                        <h4>Atividades Secundárias</h4>
+                        <ul>
+                            {cnpjData.atividades_secundarias.map((atividade, index) => (
+                                <li key={index}>{atividade.text}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
+        );
+    };
+    
     if (loading) {
-        return <LoadingIndicator />;
+        return <div className="loading-container">Carregando...</div>;
     }
     
     return (
@@ -71,6 +190,7 @@ function AdminDashboard() {
                     <table className="users-table">
                         <thead>
                             <tr>
+                                <th>Info</th>
                                 <th>Usuário</th>
                                 <th>Email</th>
                                 <th>Empresa</th>
@@ -80,28 +200,49 @@ function AdminDashboard() {
                         </thead>
                         <tbody>
                             {users.map(user => (
-                                <tr key={user.id}>
-                                    <td>{user.username}</td>
-                                    <td>{user.email}</td>
-                                    <td>{user.nome_empresa}</td>
-                                    <td>{user.cnpj}</td>
-                                    <td className="action-buttons">
-                                        <button 
-                                            className="approve-button" 
-                                            onClick={() => handleUserAction(user.id, 'approve')}
-                                            disabled={actionInProgress}
-                                        >
-                                            Aprovar
-                                        </button>
-                                        <button 
-                                            className="deny-button" 
-                                            onClick={() => handleUserAction(user.id, 'deny')}
-                                            disabled={actionInProgress}
-                                        >
-                                            Rejeitar
-                                        </button>
-                                    </td>
-                                </tr>
+                                <React.Fragment key={user.id}>
+                                    <tr className={expandedUser === user.id ? "expanded-row" : ""}>
+                                        <td>
+                                            <button 
+                                                className="toggle-button"
+                                                onClick={() => toggleUserExpand(user.id)}
+                                            >
+                                                {expandedUser === user.id ? "▼" : "►"}
+                                            </button>
+                                        </td>
+                                        <td>{user.username}</td>
+                                        <td>{user.email}</td>
+                                        <td>{user.nome_empresa}</td>
+                                        <td>
+                                            {user.cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")}
+                                        </td>
+                                        <td className="action-buttons">
+                                            <button 
+                                                className="approve-button" 
+                                                onClick={() => handleUserAction(user.id, 'approve')}
+                                                disabled={actionInProgress}
+                                            >
+                                                Aprovar
+                                            </button>
+                                            <button 
+                                                className="deny-button" 
+                                                onClick={() => handleUserAction(user.id, 'deny')}
+                                                disabled={actionInProgress}
+                                            >
+                                                Rejeitar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {expandedUser === user.id && (
+                                        <tr className="cnpj-details-row">
+                                            <td colSpan="6">
+                                                <div className="cnpj-details-container">
+                                                    {renderCNPJData(user.cnpj_data)}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
                             ))}
                         </tbody>
                     </table>
