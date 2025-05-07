@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, NoteSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Note
+from .models import Note, CustomUser, Revendedor
 from django.core.mail import send_mail, EmailMultiAlternatives
 import requests
 from django.conf import settings
@@ -16,10 +16,6 @@ import os
 import base64
 import time
 from email.mime.base import MIMEBase
-
-from .models import CustomUser, Revendedor
-# Create your views here.
-
 
 class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
@@ -54,7 +50,6 @@ class CreateUserView(generics.CreateAPIView):
     def perform_create(self, serializer):
         user = serializer.save()
         
-        # User is created with revendedor association
         consulta_data = serializer.context.get('consulta_data', {})
         
         threading.Thread(
@@ -66,7 +61,7 @@ class CreateUserView(generics.CreateAPIView):
         try:
             user = CustomUser.objects.get(email=email)
             revendedor = user.revendedor
-            verification_url = f"https://api.letrajato.com.br/letrajato/verify/{revendedor.verification_token}"
+            verification_url = f"https://letrajato.com.br/admin"
 
             cliente_subject = "Bem-vindo à Letrajato"
             cliente_plain_message = f"Bem-vindo à Letrajato, {username}! Seu registro foi efetuado com sucesso."
@@ -124,7 +119,7 @@ class CreateUserView(generics.CreateAPIView):
                                     {sec}
                                 </ul>
                             </ul>
-                            <p>Clique neste link para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
+                            <p>Entre no Admin Dashboard para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -146,7 +141,7 @@ class CreateUserView(generics.CreateAPIView):
                             <ul>
                                 <li><strong>CNPJ:</strong> {cnpj_formatado}</li>
                             </ul>
-                            <p>Clique neste link para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
+                            <p>Entre no Admin Dashboard para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -166,7 +161,7 @@ class CreateUserView(generics.CreateAPIView):
                 subject=admin_subject,
                 body=admin_plain_message,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["rftolini@gmail.com"]
+                to=["letrajato@gmail.com"]
             )
             email_message.attach_alternative(admin_html_message, "text/html")
             email_message.send(fail_silently=True)
@@ -204,7 +199,7 @@ class EmailSendView(APIView):
             email = request.user.email
             subject = request.data.get("subject")
             message = request.data.get("message")
-            # svg_image = request.data.get("image", None)  # Not needed as attachment
+            # svg_image = request.data.get("image", None)
 
             email_message = EmailMultiAlternatives(
                 subject=subject,
@@ -218,30 +213,23 @@ class EmailSendView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-
+#?????
 class VerifyUserView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request, token, format=None):
         try:
-            # Convert string to UUID (will raise ValueError if invalid format)
+
             verification_token = uuid.UUID(token)
-            
-            # Find the revendedor with this token instead of the user
             revendedor = Revendedor.objects.get(verification_token=verification_token)
-            
-            # Mark as verified
             revendedor.verificado = True
             revendedor.save()
             
-            # Get the user from the revendedor
             user = revendedor.user
             
-            # Optional: Send confirmation email
             self._send_verification_confirmation(user, revendedor)
             
-            # Return HTML with auto-close JavaScript instead of JSON Response
             html_content = f"""
                 <!DOCTYPE html>
                 <html>
@@ -299,7 +287,7 @@ class VerifyUserView(APIView):
                             <h2 style="color: #FF5207;">Conta Verificada!</h2>
                             <p>Olá <strong>{user.username}</strong>,</p>
                             <p>Sua conta para <strong>{revendedor.nome_empresa}</strong> foi verificada com sucesso!</p>
-                            <p>Agora você tem acesso completo à plataforma Letrajato.</p>
+                            <p>Agora você é um de nossos parceiros e tem acesso completo à plataforma Letrajato!</p>
                             <p>Atenciosamente,<br>Equipe Letrajato</p>
                         </div>
                     </body>
@@ -318,6 +306,7 @@ class VerifyUserView(APIView):
         except Exception as e:
             print(f"Failed to send verification confirmation: {str(e)}")
 
+
 class UserVerificationStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -330,33 +319,27 @@ class UserVerificationStatusView(APIView):
             'is_revendedor': is_revendedor
         }
         
-        # If revendedor, add verification status and details
         if is_revendedor:
             data['verificado'] = user.revendedor.verificado
             data['nome_empresa'] = user.revendedor.nome_empresa
             data['cnpj'] = user.revendedor.cnpj
         else:
-            # Regular users don't need verification
-            data['verificado'] = True
+            data['verificado'] = False
             
         return Response(data, status=status.HTTP_200_OK)
 
 class AdminUsersView(APIView):
-    """
-    API endpoint to list users pending verification and approve/deny them
-    Only accessible by staff/admin users
-    """
+
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        """List all users pending verification"""
+
         if not request.user.is_staff:
             return Response(
                 {"error": "You don't have permission to access this resource"},
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Find users with unverified revendedor accounts
         unverified_revendedores = Revendedor.objects.filter(verificado=False)
         users_to_verify = [r.user for r in unverified_revendedores]
         
@@ -364,7 +347,7 @@ class AdminUsersView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     def post(self, request):
-        """Approve or deny a revendedor user"""
+
         if not request.user.is_staff:
             return Response(
                 {"error": "You don't have permission to access this resource"},
@@ -372,7 +355,7 @@ class AdminUsersView(APIView):
             )
         
         user_id = request.data.get('user_id')
-        action = request.data.get('action')  # 'approve' or 'deny'
+        action = request.data.get('action')
         
         if not user_id or action not in ['approve', 'deny']:
             return Response(
@@ -390,23 +373,20 @@ class AdminUsersView(APIView):
                 )
             
             if action == 'approve':
-                # Approve the revendedor
+
                 user.revendedor.verificado = True
                 user.revendedor.save()
                 
-                # Send approval email
                 self._send_approval_email(user)
                 
                 return Response(
                     {"message": "Revendedor approved successfully"},
                     status=status.HTTP_200_OK
                 )
-            else:  # deny
-                # Convert to normal user by deleting revendedor record
-                # This keeps the user but removes revendedor status
+            else:
+
                 user.revendedor.delete()
                 
-                # Send denial email
                 self._send_denial_email(user)
                 
                 return Response(
@@ -421,7 +401,7 @@ class AdminUsersView(APIView):
             )
     
     def _send_approval_email(self, user):
-        """Send email notifying approval of revendedor status"""
+
         try:
             subject = "Cadastro de Revendedor Aprovado - Letrajato"
             message = f"""
@@ -467,14 +447,14 @@ class AdminUsersView(APIView):
             print(f"Failed to send approval email: {str(e)}")
     
     def _send_denial_email(self, user):
-        """Send email notifying denial of revendedor status"""
+
         try:
             subject = "Atualização do seu Cadastro - Letrajato"
             message = f"""
                 Olá {user.username},
                 
-                Informamos que seu cadastro como revendedor não foi aprovado neste momento.
-                No entanto, seu cadastro foi mantido como usuário padrão, e você pode acessar
+                Lamentamos informar que seu cadastro como revendedor não foi aprovado neste momento.
+                No entanto, seu cadastro foi mantido e você pode acessar
                 a plataforma Letrajato normalmente.
                 
                 Caso tenha dúvidas, entre em contato com nossa equipe de suporte.
@@ -490,7 +470,7 @@ class AdminUsersView(APIView):
                         <h2 style="color: #ff5722;">Atualização do seu Cadastro</h2>
                         <p>Olá <strong>{user.username}</strong>,</p>
                         <p>Informamos que seu cadastro como revendedor não foi aprovado neste momento.</p>
-                        <p>No entanto, <strong>seu cadastro foi mantido como usuário padrão</strong>, e você pode acessar a plataforma Letrajato normalmente.</p>
+                        <p>No entanto, <strong>seu cadastro foi mantido</strong>, e você pode acessar a plataforma Letrajato normalmente.</p>
                         <p>Caso tenha dúvidas ou queira mais informações, entre em contato com nossa equipe de suporte.</p>
                         <p>Atenciosamente,<br>Equipe Letrajato</p>
                     </div>

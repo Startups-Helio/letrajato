@@ -5,9 +5,6 @@ from django.contrib.auth.models import AbstractUser
 from .managers import CustomUserManager
 import uuid
 
-# Create your models here.
-
-
 class Note(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
@@ -19,7 +16,7 @@ class Note(models.Model):
 
 
 class CustomUser(AbstractUser):
-    """Base user model for all users in the system"""
+
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=150)
     
@@ -33,11 +30,9 @@ class CustomUser(AbstractUser):
         
     @property
     def is_revendedor(self):
-        """Check if user is a revendedor"""
         return hasattr(self, 'revendedor')
     
 class Revendedor(models.Model):
-    """Extension of CustomUser with additional fields for resellers"""
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True, related_name='revendedor')
     cnpj = models.CharField(max_length=14)
     nome_empresa = models.CharField(max_length=255)

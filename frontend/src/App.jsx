@@ -70,7 +70,12 @@ function App() {
             </ProtectedRoute>
         }
         />
-        <Route path="/verification-pending" element={<ProtectedRoute><VerificationPending /></ProtectedRoute>} />
+        <Route path="/verification-pending" element={
+            <ProtectedRoute>
+              <VerificationPending />
+            </ProtectedRoute>
+        }
+        />
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>

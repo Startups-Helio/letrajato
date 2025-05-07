@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 import NavBar from "../components/NavBar";
+import "../styles/VerificationPending.css";
 
 function VerificationPending() {
   const [userData, setUserData] = useState(null);
@@ -17,7 +18,6 @@ function VerificationPending() {
       const response = await api.get("/letrajato/verify-status/");
       setUserData(response.data);
 
-      // If verified or not a revendedor, redirect to home
       if (response.data.verificado || !response.data.is_revendedor) {
         navigate("/home");
       }

@@ -50,10 +50,10 @@ function NavBar() {
         <Link to="/">Letrajato</Link>
       </div>
       <div className="navbar-links">
-        <Link to="/" className="nav-link">Início</Link>
+        <Link to="/home" className="nav-link">Início</Link>
         {isAuthenticated ? (
           <>
-            {isRevendedor && verified && (
+            {(isRevendedor) && (
               <Link to="/orcamento" className="nav-link">Orçamento</Link>
             )}
             {isAdmin && <Link to="/admin" className="nav-link admin-link">Admin</Link>}

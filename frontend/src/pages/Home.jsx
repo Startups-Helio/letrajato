@@ -1,87 +1,177 @@
-import { useState, useEffect } from "react"
-import api from "../api"
-import Note from "../components/Note"
-import Banner from "../components/Banner"
-import NavBar from "../components/NavBar"
-import "../styles/Home.css"
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import api from "../api";
+import NavBar from "../components/NavBar";
+import "../styles/Home.css";
 
-function Home(){
-  const [notes, setNotes] = useState([]);
-  const [content, setContent] = useState("")
-  const [title, setTitle] = useState("")
+function Home() {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState([]);
 
   useEffect(() => {
-    getNotes();
-  }, [])
+    getUserInfo();
+    
+    setServices([
+      {
+        id: 1,
+        title: "Orçamento 3D",
+        icon: "📏",
+        description: "Calcule o custo de suas peças personalizadas",
+        link: "/orcamento",
+        requiresVerification: true
+      },
+      {
+        id: 2,
+        title: "Materiais",
+        icon: "🧪",
+        description: "Explore nossa linha de materiais premium",
+        link: "https://loja.infinitepay.io/letrajato3d",
+        external: true
+      },
+      {
+        id: 3,
+        title: "Suporte",
+        icon: "🛠️",
+        description: "Entre em contato com nossa equipe técnica",
+        link: "mailto:letrajato.suporte@gmail.com",
+        external: true
+      }
+    ]);
+  }, []);
 
-  const getNotes = () => {
-    api
-      .get("/letrajato/notes/")
-      .then((res) => res)
-      .then((data) => {setNotes(data.data); console.log(data)})
-      .catch((err) => alert(err));
+  const getUserInfo = async () => {
+    try {
+      const response = await api.get("/letrajato/verify-status/");
+      setUserData(response.data);
+    } catch (error) {
+      console.error("Erro ao obter informações do usuário:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="page-loader">
+        <div className="loader"></div>
+        <p>Carregando...</p>
+      </div>
+    );
   }
 
-  const deleteNote = (id) => {
-    api.delete(`/letrajato/notes/delete/${id}/`).then((res) => {
-      if(res.status === 204) alert("Note deleted!")
-      else alert("Failed to delete note!")
-      getNotes()
-    }).catch((error) => alert(error))
-  }
+  const canAccessService = (service) => {
+    if (!service.requiresVerification) return true;
+    return userData?.verificado && userData?.is_revendedor;
+  };
 
-  const createNote = (e) => {
-    e.preventDefault()
-    api.post("/letrajato/notes/", {content, title}).then((res) => {
-      if(res.status === 201) alert("Note created!")
-      else alert("Failed to created note!")
-      getNotes()
-    }).catch((err) => alert(err));
-  }
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Bom dia";
+    if (hour < 18) return "Boa tarde";
+    return "Boa noite";
+  };
 
   return (
     <div className="home-container">
       <NavBar />
-      <Banner />
-      <div className="content-container">
-        <div className="notes-section">
-            <h2>Minhas Notas</h2>
-            {notes.map((note) => (
-                <Note note={note} onDelete={deleteNote} key={note.id} />
-            ))}
+      
+      <div className="home-banner">
+        <div className="banner-content">
+          <h1>
+            <span className="welcome-text">{getGreeting()}!</span>
+            <span className="user-name">{userData? userData.username : "Usuário"}</span>
+          </h1>
+          <p className="banner-tagline">
+            Bem-vindo à central do usuário Letrajato
+          </p>
         </div>
-        <div className="create-note-section">
-          <h2>Criar Nova Nota</h2>
-          <form onSubmit={createNote} className="note-form">
-              <div className="form-group">
-                <label htmlFor="title">Título:</label>
-                <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    required
-                    onChange={(e) => setTitle(e.target.value)}
-                    value={title}
-                    className="form-input"
-                />
+      </div>
+      
+      <div className="dashboard-container">
+        <div className="account-status-card">
+          <h2>Status da Conta</h2>
+          <div className="status-info">
+            <div className="status-item">
+              <span className="status-label">Tipo de conta:</span>
+              <span className="status-value">
+                {userData?.is_revendedor ? "Revendedor" : "Cliente"}
+              </span>
+            </div>
+            
+            {userData?.is_revendedor && (
+              <>
+                <div className="status-item">
+                  <span className="status-label">Status:</span>
+                  <span className={`status-value ${userData?.verificado ? "status-verified" : "status-pending"}`}>
+                    {userData?.verificado ? "Verificado" : "Pendente"}
+                  </span>
+                </div>
+                
+                <div className="status-item">
+                  <span className="status-label">Empresa:</span>
+                  <span className="status-value">{userData?.nome_empresa}</span>
+                </div>
+              </>
+            )}
+            
+            {!userData?.verificado && userData?.is_revendedor && (
+              <div className="verification-message">
+                <p>Aguardando verificação da sua conta. Logo você terá acesso a todos os recursos!</p>
+                <Link to="/verification-pending" className="check-status-button">
+                  Verificar status
+                </Link>
               </div>
-              <div className="form-group">
-                <label htmlFor="content">Conteúdo:</label>
-                <textarea
-                    id="content"
-                    name="content"
-                    required
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    className="form-textarea"
-                ></textarea>
-              </div>
-              <button type="submit" className="submit-button">Criar Nota</button>
-          </form>
+            )}
+          </div>
+        </div>
+
+        <h2 className="section-title">Serviços disponíveis</h2>
+        <div className="services-grid">
+          {services.map((service) => (
+            <div 
+              key={service.id} 
+              className={`service-card ${!canAccessService(service) ? "service-disabled" : ""}`}
+            >
+              <div className="service-icon">{service.icon}</div>
+              <h3>{service.title}</h3>
+              <p>{service.description}</p>
+              {canAccessService(service) ? (
+                service.external ? (
+                  <a href={service.link} className="service-link" target="_blank" rel="noopener noreferrer">
+                    Acessar
+                  </a>
+                ) : (
+                  <Link to={service.link} className="service-link">
+                    Acessar
+                  </Link>
+                )
+              ) : (
+                <span className="service-restricted">
+                  Requer verificação
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        <div className="news-section">
+          <h2 className="section-title">Novidades</h2>
+          <div className="news-card">
+            <div className="news-header">
+              <h3>Nova impressora LJ8080</h3>
+              <span className="news-date">02/05/2025</span>
+            </div>
+            <p>Veja nossa impressora 3D LJ8080!</p>
+            <a href="https://loja.infinitepay.io/letrajato3d/ugz3594-impressora-3d-lj8080-letrajato" className="news-link" target="_blank" rel="noopener noreferrer">
+              Saiba mais
+            </a>
+          </div>
+
         </div>
       </div>
     </div>
   );
 }
 
-export default Home
+export default Home;

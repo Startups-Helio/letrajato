@@ -36,13 +36,11 @@ function VerifiedRoute({ children, requiresRevendedor = false }) {
         return <div>Loading...</div>;
     }
 
-    // If not verified and is a revendedor, redirect to pending page
     if (!isVerified && isRevendedor) {
         return <Navigate to="/verification-pending" />;
     }
 
-    // If revendedor is required but user is not a revendedor
-    if (requiresRevendedor && !isRevendedor) {
+    if (!isRevendedor) {
         return <Navigate to="/home" />;
     }
 

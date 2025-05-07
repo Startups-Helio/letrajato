@@ -10,7 +10,6 @@ class RevendedorSerializer(serializers.ModelSerializer):
         read_only_fields = ['verificado']
 
 class UserSerializer(serializers.ModelSerializer):
-    # These fields are now write-only fields just for registration
     cnpj = serializers.CharField(write_only=True, required=True)
     nome_empresa = serializers.CharField(write_only=True, required=True)
     consulta_data = serializers.JSONField(write_only=True, required=False)
@@ -30,22 +29,19 @@ class UserSerializer(serializers.ModelSerializer):
         cnpj = validated_data.pop('cnpj')
         nome_empresa = validated_data.pop('nome_empresa')
 
-        # Create base user
         user = CustomUser.objects.create_user(
             email=validated_data['email'],
             username=validated_data['username'],
             password=validated_data['password']
         )
 
-        # Create revendedor record for the user
         Revendedor.objects.create(
             user=user,
             cnpj=cnpj,
             nome_empresa=nome_empresa,
-            verificado=False  # Start unverified
+            verificado=False
         )
 
-        # Store for email sending
         if consulta_data:
             self.context['consulta_data'] = consulta_data
 
@@ -53,7 +49,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        # Add revendedor status if available
         if hasattr(instance, 'revendedor'):
             data['is_revendedor'] = True
             data['verificado'] = instance.revendedor.verificado
@@ -61,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
             data['nome_empresa'] = instance.revendedor.nome_empresa
         else:
             data['is_revendedor'] = False
-            data['verificado'] = True  # Normal users don't need verification
+            data['verificado'] = True
         
         return data
 

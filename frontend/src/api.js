@@ -6,14 +6,13 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true // This allows cookies to be sent with cross-origin requests
+  withCredentials: true
 });
 
 api.interceptors.request.use(config => {
   const token = localStorage.getItem(ACCESS_TOKEN);
   if (token) config.headers.Authorization = `Bearer ${token}`;
 
-  // Get the CSRF token from cookies if present
   const csrfToken = document.cookie
     .split("; ")
     .find(row => row.startsWith("csrftoken="))
