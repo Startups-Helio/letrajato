@@ -11,7 +11,7 @@ class RevendedorInline(admin.StackedInline):
     can_delete = True
     verbose_name_plural = "Revendedor Info"
     fieldsets = (
-        (None, {'fields': ('cnpj', 'nome_empresa', 'verificado', 'verification_token')}),
+        (None, {'fields': ('cnpj', 'nome_empresa', 'verificado')}),  # Remove verification_token
     )
 
 
@@ -74,10 +74,10 @@ class RevendedorAdmin(admin.ModelAdmin):
     list_filter = ["verificado"]
     search_fields = ["nome_empresa", "cnpj", "user__email", "user__username"]
     
-    # Include all fields in the detail view
+    # Remove verification_token from fieldsets
     fieldsets = (
         (None, {
-            'fields': ('user', 'cnpj', 'nome_empresa', 'verificado', 'verification_token')
+            'fields': ('user', 'cnpj', 'nome_empresa', 'verificado')  # Remove verification_token
         }),
     )
 
