@@ -23,7 +23,7 @@ function Faq() {
                 <div className="white-links">
                     <Link to="/*">FAQs</Link>
                     <Link to="/*">About us</Link>
-                    <Link to="/*">Ticket Suport</Link>
+                    <Link to="/support">Ticket Support</Link>
                     <Link to="/*">Enter in contact</Link>
                     <Link to="/*">Become verified</Link>
                 </div>

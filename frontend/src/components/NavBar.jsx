@@ -51,6 +51,7 @@ function NavBar() {
       </div>
       <div className="navbar-links">
         <Link to="/home" className="nav-link">Início</Link>
+        <Link to="/faq" className="nav-link admin-link">FAQ</Link>
         {isAuthenticated ? (
           <>
             {(isRevendedor || isAdmin) && (
