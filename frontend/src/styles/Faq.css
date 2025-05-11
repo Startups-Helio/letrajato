@@ -1,0 +1,99 @@
+/*-----------------------------------
+  1) Configuração comum de container
+------------------------------------*/
+.gray-section,
+.white-section {
+  max-width: 1200px;      /* largura máxima para desktop */
+  margin: 0 auto;         /* centraliza horizontalmente */
+  padding: 2rem;          /* espaçamento interno genérico */
+  box-sizing: border-box; /* inclui padding na largura total */
+}
+
+/*-----------------------------------
+  2) Gray Section: FAQs topo
+------------------------------------*/
+.gray-section {
+  background-color: #f0f0f0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.gray-text,
+.gray-image {
+  flex: 1 1 45%;      /* ocupa até ~45% cada, cresce/encolhe se precisar */
+  min-width: 300px;   /* evita encolher demais em mobile */
+}
+
+.gray-image {
+  text-align: right;  /* alinha a img à direita do bloco */
+}
+
+.gray-image img {
+  max-width: 80%;
+  height: auto;
+  display: inline-block;
+}
+
+/*-----------------------------------
+  3) White Section: Links + Perguntas
+------------------------------------*/
+.white-section {
+  background-color: #ffffff;
+  display: flex;
+  width: 90vw; 
+  max-width: none;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-top: 1rem;   /* separa do gray-section */
+}
+
+.white-links {
+  flex: 0 0 25%;      /* fixa em 25% do container */
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.white-links a {
+  color: #0366d6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color .2s ease-in-out;
+}
+.white-links a:hover {
+  color: #003f8a;
+}
+
+.white-questions {
+  flex: 1 1 70%;      /* ocupa o resto do espaço */
+  min-width: 300px;
+  /* aqui você pode implementar seu componente de accordion */
+}
+
+/*-----------------------------------
+  4) Responsividade (mobile/tablet)
+------------------------------------*/
+@media (max-width: 768px) {
+  .gray-section,
+  .white-section {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .gray-text,
+  .gray-image,
+  .white-links,
+  .white-questions {
+    flex: 1 1 100%;
+    min-width: auto;
+  }
+
+  .gray-image { text-align: center; }
+  .white-links { align-items: center; }
+}

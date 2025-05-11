@@ -11,6 +11,7 @@ import VerifiedRoute from "./components/VerifiedRoute"
 import VerificationPending from "./pages/VerificationPending"
 import Admin from "./pages/Admin"
 import api from "./api" 
+import Faq from "./pages/Faq"
 
 function AdminRoute({ children }) {
   const [isAdmin, setIsAdmin] = useState(null);
@@ -79,6 +80,7 @@ function App() {
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>
+        <Route path="/faq" element = {<Faq />}/>
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminRoute>
