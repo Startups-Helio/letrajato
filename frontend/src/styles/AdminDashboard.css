@@ -407,3 +407,39 @@
     align-self: flex-start;
   }
 }
+
+/* Tab navigation */
+.admin-tabs {
+  display: flex;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tab-button {
+  padding: 1rem 2rem;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+  margin-right: 1rem;
+}
+
+.tab-button:hover {
+  color: #FF5207;
+}
+
+.tab-button.active {
+  color: #FF5207;
+  border-bottom: 3px solid #FF5207;
+}
+
+.tab-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+}

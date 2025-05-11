@@ -12,7 +12,7 @@ class RevendedorInline(admin.StackedInline):
     can_delete = True
     verbose_name_plural = "Revendedor Info"
     fieldsets = (
-        (None, {'fields': ('cnpj', 'nome_empresa', 'verificado')}),  # Remove verification_token
+        (None, {'fields': ('cnpj', 'nome_empresa', 'verificado')}),
     )
 
 
@@ -22,18 +22,15 @@ class CustomUserAdmin(UserAdmin):
     model = CustomUser
     inlines = [RevendedorInline]
     
-    # Complete list display
     list_display = [
         "id", "email", "username", "is_revendedor", "is_active",
         "is_staff", "is_superuser", "date_joined", "last_login"
     ]
     
-    # Fix the list_filter - remove the reference to RevendedorInline.model.verificado
-    list_filter = ("is_staff", "is_active")  # Remove the reference to verificado
+    list_filter = ("is_staff", "is_active")
     search_fields = ("email", "username")
     ordering = ("-date_joined",)
     
-    # Detailed fieldsets - include all standard user fields
     fieldsets = (
         (None, {"fields": ("email", "username", "password")}),
         (_("Personal info"), {"fields": ("first_name", "last_name")}),
@@ -52,7 +49,6 @@ class CustomUserAdmin(UserAdmin):
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
     
-    # Fields for creation form
     add_fieldsets = (
         (
             None,
@@ -95,7 +91,6 @@ class RevendedorAdmin(admin.ModelAdmin):
             if field in obj.cnpj_data:
                 html += f"<tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>{field}</strong></td><td style='border: 1px solid #ddd; padding: 8px;'>{obj.cnpj_data[field]}</td></tr>"
         
-        # Add atividades principais
         if 'atividade_principal' in obj.cnpj_data and obj.cnpj_data['atividade_principal']:
             html += "<tr><td style='border: 1px solid #ddd; padding: 8px;'><strong>atividade_principal</strong></td><td style='border: 1px solid #ddd; padding: 8px;'><ul>"
             for atividade in obj.cnpj_data['atividade_principal']:
@@ -120,8 +115,8 @@ class TicketMessageInline(admin.TabularInline):
 
 
 class SupportTicketAdmin(admin.ModelAdmin):
-    list_display = ['id', 'title', 'user', 'status', 'priority', 'created_at', 'updated_at']
-    list_filter = ['status', 'priority']
+    list_display = ['id', 'title', 'user', 'status', 'created_at', 'updated_at']
+    list_filter = ['status']
     search_fields = ['title', 'user__username', 'user__email']
     inlines = [TicketMessageInline]
 

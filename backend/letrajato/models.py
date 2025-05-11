@@ -19,7 +19,7 @@ class Note(models.Model):
 class CustomUser(AbstractUser):
 
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150)
+    username = models.CharField(max_length=25)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -58,16 +58,9 @@ class SupportTicket(models.Model):
         ('closed', 'Fechado'),
     )
     
-    PRIORITY_CHOICES = (
-        ('low', 'Baixa'),
-        ('medium', 'Média'),
-        ('high', 'Alta'),
-    )
-    
     title = models.CharField(max_length=200)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='support_tickets')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
-    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     closed_at = models.DateTimeField(null=True, blank=True)
@@ -84,7 +77,7 @@ class TicketMessage(models.Model):
     ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     message = models.TextField()
-    is_from_admin = models.BooleanField(default=False)  # Indicates if message is from admin or user
+    is_from_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

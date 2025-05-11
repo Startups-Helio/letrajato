@@ -36,18 +36,16 @@ function AdminTicketsDashboard() {
     }
   };
 
-  const getPriorityClass = (priority) => {
-    switch (priority) {
-      case 'high': return 'priority-high';
-      case 'medium': return 'priority-medium';
-      case 'low': return 'priority-low';
-      default: return '';
-    }
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString('pt-BR');
+  };
+
+  // Function to truncate text if it exceeds maxLength
+  const truncateText = (text, maxLength = 30) => {
+    return text && text.length > maxLength 
+      ? text.substring(0, maxLength) + '...' 
+      : text;
   };
 
   const filteredTickets = tickets.filter(ticket => {
@@ -97,7 +95,6 @@ function AdminTicketsDashboard() {
                 <th>Usuário</th>
                 <th>Título</th>
                 <th>Status</th>
-                <th>Prioridade</th>
                 <th>Criado em</th>
                 <th>Última Atualização</th>
                 <th>Ações</th>
@@ -107,23 +104,18 @@ function AdminTicketsDashboard() {
               {filteredTickets.map((ticket) => (
                 <tr key={ticket.id}>
                   <td>#{ticket.id}</td>
-                  <td>{ticket.user_name}</td>
-                  <td>{ticket.title}</td>
+                  <td>{ticket.user ? ticket.user.username : (ticket.username || "-")}</td>
+                  <td title={ticket.title}>{truncateText(ticket.title)}</td>
                   <td>
                     <span className={`status-badge ${getStatusClass(ticket.status)}`}>
                       {ticket.status_display}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`priority-badge ${getPriorityClass(ticket.priority)}`}>
-                      {ticket.priority_display}
                     </span>
                   </td>
                   <td>{formatDate(ticket.created_at)}</td>
                   <td>{formatDate(ticket.updated_at)}</td>
                   <td>
                     <Link to={`/admin/support/ticket/${ticket.id}`} className="view-ticket-button">
-                      Responder
+                      {ticket.status !== 'closed' ? 'Responder':'Detalhes'}
                     </Link>
                   </td>
                 </tr>

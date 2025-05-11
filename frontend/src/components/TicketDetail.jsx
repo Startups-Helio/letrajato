@@ -36,7 +36,6 @@ function TicketDetail({ isAdmin = false }) {
     loadTicketData();
   }, [ticketId]);
 
-  // Scroll to bottom whenever messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -54,7 +53,7 @@ function TicketDetail({ isAdmin = false }) {
       });
       
       setNewMessage('');
-      loadTicketData(); // Reload to get the latest messages
+      loadTicketData();
     } catch (err) {
       setError('Erro ao enviar mensagem. Por favor, tente novamente.');
       console.error('Error sending message:', err);
@@ -107,7 +106,7 @@ function TicketDetail({ isAdmin = false }) {
     <div className="ticket-detail-container">
       <div className="ticket-header">
         <button 
-          onClick={() => navigate(isAdmin ? '/admin/support' : '/support')}
+          onClick={() => navigate(isAdmin ? '/admin' : '/support')}
           className="back-button"
         >
           &larr; Voltar

@@ -106,14 +106,6 @@ function App() {
           } 
         />
         <Route 
-          path="/admin/support" 
-          element={
-            <AdminRoute>
-              <AdminSupport />
-            </AdminRoute>
-          } 
-        />
-        <Route 
           path="/admin/support/ticket/:ticketId" 
           element={
             <AdminRoute>

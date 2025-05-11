@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { Link } from 'react-router-dom';
 import api from "../api";
+import AdminTicketsDashboard from './AdminTicketsDashboard';
 import "../styles/AdminDashboard.css";
 
 function AdminDashboard() {
@@ -7,10 +9,13 @@ function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [actionInProgress, setActionInProgress] = useState(false);
     const [expandedUser, setExpandedUser] = useState(null);
+    const [activeTab, setActiveTab] = useState('users'); // 'users' or 'support'
     
     useEffect(() => {
-        loadUsers();
-    }, []);
+        if (activeTab === 'users') {
+            loadUsers();
+        }
+    }, [activeTab]);
     
     const loadUsers = async () => {
         try {
@@ -164,92 +169,123 @@ function AdminDashboard() {
         );
     };
     
-    if (loading) {
-        return <div className="loading-container">Carregando...</div>;
-    }
+    const renderActiveTab = () => {
+        if (activeTab === 'support') {
+            return <AdminTicketsDashboard />;
+        }
+        
+        // Users tab content
+        if (loading) {
+            return <div className="loading-container">Carregando...</div>;
+        }
+        
+        return (
+            <>
+                <div className="dashboard-header">
+                    <h3>Usuários Pendentes de Verificação</h3>
+                    <button 
+                        className="refresh-button" 
+                        onClick={loadUsers}
+                        disabled={actionInProgress}
+                    >
+                        Atualizar
+                    </button>
+                </div>
+                
+                {users.length === 0 ? (
+                    <div className="no-users">
+                        <p>Não há usuários pendentes de verificação.</p>
+                    </div>
+                ) : (
+                    <div className="users-table-container">
+                        <table className="users-table">
+                            <thead>
+                                <tr>
+                                    <th>Info</th>
+                                    <th>Usuário</th>
+                                    <th>Email</th>
+                                    <th>Empresa</th>
+                                    <th>CNPJ</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.map(user => (
+                                    <React.Fragment key={user.id}>
+                                        <tr className={expandedUser === user.id ? "expanded-row" : ""}>
+                                            <td>
+                                                <button 
+                                                    className="toggle-button"
+                                                    onClick={() => toggleUserExpand(user.id)}
+                                                    aria-label={expandedUser === user.id ? "Esconder detalhes" : "Mostrar detalhes"}
+                                                >
+                                                    {expandedUser === user.id ? "▼" : "►"}
+                                                </button>
+                                            </td>
+                                            <td>{user.username}</td>
+                                            <td>{user.email}</td>
+                                            <td>{user.nome_empresa}</td>
+                                            <td>
+                                                {user.cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")}
+                                            </td>
+                                            <td className="action-buttons">
+                                                <button 
+                                                    className="approve-button" 
+                                                    onClick={() => handleUserAction(user.id, 'approve')}
+                                                    disabled={actionInProgress}
+                                                >
+                                                    Aprovar
+                                                </button>
+                                                <button 
+                                                    className="deny-button" 
+                                                    onClick={() => handleUserAction(user.id, 'deny')}
+                                                    disabled={actionInProgress}
+                                                >
+                                                    Rejeitar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        {expandedUser === user.id && (
+                                            <tr className="cnpj-details-row">
+                                                <td colSpan="6">
+                                                    <div className="cnpj-details-container">
+                                                        {renderCNPJData(user.cnpj_data)}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </>
+        );
+    };
     
     return (
         <div className="admin-dashboard">
             <h2>Painel Administrativo</h2>
-            <div className="dashboard-header">
-                <h3>Usuários Pendentes de Verificação</h3>
+            
+            <div className="admin-tabs">
                 <button 
-                    className="refresh-button" 
-                    onClick={loadUsers}
-                    disabled={actionInProgress}
+                    className={`tab-button ${activeTab === 'users' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('users')}
                 >
-                    Atualizar
+                    Usuários
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'support' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('support')}
+                >
+                    Central de Suporte
                 </button>
             </div>
             
-            {users.length === 0 ? (
-                <div className="no-users">
-                    <p>Não há usuários pendentes de verificação.</p>
-                </div>
-            ) : (
-                <div className="users-table-container">
-                    <table className="users-table">
-                        <thead>
-                            <tr>
-                                <th>Info</th>
-                                <th>Usuário</th>
-                                <th>Email</th>
-                                <th>Empresa</th>
-                                <th>CNPJ</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {users.map(user => (
-                                <React.Fragment key={user.id}>
-                                    <tr className={expandedUser === user.id ? "expanded-row" : ""}>
-                                        <td>
-                                            <button 
-                                                className="toggle-button"
-                                                onClick={() => toggleUserExpand(user.id)}
-                                                aria-label={expandedUser === user.id ? "Esconder detalhes" : "Mostrar detalhes"}
-                                            >
-                                                {expandedUser === user.id ? "▼" : "►"}
-                                            </button>
-                                        </td>
-                                        <td>{user.username}</td>
-                                        <td>{user.email}</td>
-                                        <td>{user.nome_empresa}</td>
-                                        <td>
-                                            {user.cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5")}
-                                        </td>
-                                        <td className="action-buttons">
-                                            <button 
-                                                className="approve-button" 
-                                                onClick={() => handleUserAction(user.id, 'approve')}
-                                                disabled={actionInProgress}
-                                            >
-                                                Aprovar
-                                            </button>
-                                            <button 
-                                                className="deny-button" 
-                                                onClick={() => handleUserAction(user.id, 'deny')}
-                                                disabled={actionInProgress}
-                                            >
-                                                Rejeitar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    {expandedUser === user.id && (
-                                        <tr className="cnpj-details-row">
-                                            <td colSpan="6">
-                                                <div className="cnpj-details-container">
-                                                    {renderCNPJData(user.cnpj_data)}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </React.Fragment>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+            <div className="tab-content">
+                {renderActiveTab()}
+            </div>
         </div>
     );
 }

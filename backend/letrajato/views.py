@@ -11,7 +11,7 @@ import requests
 from django.conf import settings
 import threading
 import uuid
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 import os
 import base64
 import time
@@ -317,7 +317,8 @@ class UserVerificationStatusView(APIView):
         
         data = {
             'email': user.email,
-            'is_revendedor': is_revendedor
+            'is_revendedor': is_revendedor,
+            'is_staff': user.is_staff
         }
         
         if is_revendedor:
@@ -341,7 +342,6 @@ class AdminUsersView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Get all unverified revendedores
         unverified_revendedores = Revendedor.objects.filter(verificado=False)
         users_data = []
         
@@ -353,7 +353,7 @@ class AdminUsersView(APIView):
                 "email": user.email,
                 "nome_empresa": revendedor.nome_empresa,
                 "cnpj": revendedor.cnpj,
-                "cnpj_data": revendedor.cnpj_data,  # Include CNPJ data in response
+                "cnpj_data": revendedor.cnpj_data,
                 "is_revendedor": True,
                 "verificado": False
             }
@@ -519,7 +519,6 @@ class TicketListCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        # For admin users, show all tickets, for regular users, show only their tickets
         if request.user.is_staff:
             tickets = SupportTicket.objects.all().order_by('-created_at')
         else:
@@ -529,7 +528,7 @@ class TicketListCreateView(APIView):
         return Response(serializer.data)
     
     def post(self, request):
-        # Create a new ticket
+
         data = request.data.copy()
         data['user'] = request.user.id
         
@@ -537,7 +536,6 @@ class TicketListCreateView(APIView):
         if serializer.is_valid():
             ticket = serializer.save(user=request.user)
             
-            # Create the first message
             if 'message' in request.data and request.data['message']:
                 TicketMessage.objects.create(
                     ticket=ticket,
@@ -554,7 +552,6 @@ class TicketDetailView(APIView):
     
     def get_object(self, ticket_id, user):
         try:
-            # Admin can see all tickets, users can only see their own
             if user.is_staff:
                 return SupportTicket.objects.get(id=ticket_id)
             return SupportTicket.objects.get(id=ticket_id, user=user)
@@ -567,10 +564,8 @@ class TicketDetailView(APIView):
         return Response(serializer.data)
     
     def patch(self, request, ticket_id):
-        # Update ticket status
         ticket = self.get_object(ticket_id, request.user)
         
-        # Only admin can change status
         if 'status' in request.data and not request.user.is_staff:
             return Response(
                 {"error": "Only admin can change ticket status"},
@@ -579,7 +574,6 @@ class TicketDetailView(APIView):
             
         serializer = SupportTicketSerializer(ticket, data=request.data, partial=True)
         if serializer.is_valid():
-            # If closing ticket, set closed_at timestamp
             if request.data.get('status') == 'closed' and ticket.status != 'closed':
                 serializer.save(closed_at=timezone.now())
             else:
@@ -592,7 +586,6 @@ class TicketMessageView(APIView):
     
     def get_ticket(self, ticket_id, user):
         try:
-            # Admin can access all tickets, users only their own
             if user.is_staff:
                 return SupportTicket.objects.get(id=ticket_id)
             return SupportTicket.objects.get(id=ticket_id, user=user)
@@ -600,17 +593,14 @@ class TicketMessageView(APIView):
             raise Http404
     
     def get(self, request, ticket_id):
-        # Get all messages for a ticket
         ticket = self.get_ticket(ticket_id, request.user)
         messages = ticket.messages.all().order_by('created_at')
         serializer = TicketMessageSerializer(messages, many=True)
         return Response(serializer.data)
     
     def post(self, request, ticket_id):
-        # Add a message to a ticket
         ticket = self.get_ticket(ticket_id, request.user)
         
-        # Don't allow messages on closed tickets
         if ticket.status == 'closed':
             return Response(
                 {"error": "Cannot add messages to closed tickets"},
@@ -624,7 +614,6 @@ class TicketMessageView(APIView):
         
         serializer = TicketMessageSerializer(data=data)
         if serializer.is_valid():
-            # If admin responds and ticket is open, set to in_progress
             if request.user.is_staff and ticket.status == 'open':
                 ticket.status = 'in_progress'
                 ticket.save()

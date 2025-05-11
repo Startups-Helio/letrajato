@@ -5,7 +5,6 @@ import '../styles/SupportTicket.css';
 function SupportTicketForm({ onTicketCreated }) {
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  const [priority, setPriority] = useState('medium');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -17,13 +16,11 @@ function SupportTicketForm({ onTicketCreated }) {
     try {
       const response = await api.post('/letrajato/tickets/', {
         title,
-        message,
-        priority
+        message
       });
 
       setTitle('');
       setMessage('');
-      setPriority('medium');
       
       if (onTicketCreated) {
         onTicketCreated(response.data);
@@ -55,6 +52,7 @@ function SupportTicketForm({ onTicketCreated }) {
           />
         </div>
 
+        {/* 
         <div className="form-group">
           <label htmlFor="ticket-priority">Prioridade</label>
           <select
@@ -68,6 +66,7 @@ function SupportTicketForm({ onTicketCreated }) {
             <option value="high">Alta</option>
           </select>
         </div>
+        */}
 
         <div className="form-group">
           <label htmlFor="ticket-message">Mensagem</label>

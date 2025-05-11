@@ -26,6 +26,12 @@ function UserTicketsList() {
     loadTickets();
   }, []);
 
+  const truncateText = (text, maxLength = 30) => {
+    return text && text.length > maxLength 
+      ? text.substring(0, maxLength) + '...' 
+      : text;
+  };
+
   const getStatusClass = (status) => {
     switch (status) {
       case 'open': return 'status-open';
@@ -41,11 +47,25 @@ function UserTicketsList() {
   };
 
   if (loading) {
-    return <div className="loading-container">Carregando tickets...</div>;
+    return <div className="loading-spinner">Carregando tickets...</div>;
   }
 
   if (error) {
-    return <div className="error-container">{error}</div>;
+    return <div className="error-message">{error}</div>;
+  }
+
+  if (tickets.length === 0) {
+    return (
+      <div className="tickets-list-container">
+        <div className="tickets-header">
+          <h3>Meus Tickets de Suporte</h3>
+          <button onClick={loadTickets} className="refresh-button">Atualizar</button>
+        </div>
+        <div className="no-tickets">
+          <p>Você ainda não abriu nenhum ticket de suporte.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -54,45 +74,39 @@ function UserTicketsList() {
         <h3>Meus Tickets de Suporte</h3>
         <button onClick={loadTickets} className="refresh-button">Atualizar</button>
       </div>
-
-      {tickets.length === 0 ? (
-        <div className="no-tickets">
-          <p>Você não possui nenhum ticket de suporte aberto.</p>
-        </div>
-      ) : (
-        <table className="tickets-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Título</th>
-              <th>Status</th>
-              <th>Prioridade</th>
-              <th>Criado em</th>
-              <th>Ações</th>
+      
+      <table className="tickets-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Status</th>
+            <th>Criado em</th>
+            <th>Última Atualização</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tickets.map((ticket) => (
+            <tr key={ticket.id}>
+              <td>#{ticket.id}</td>
+              <td title={ticket.title}>{truncateText(ticket.title)}</td>
+              <td>
+                <span className={`status-badge ${getStatusClass(ticket.status)}`}>
+                  {ticket.status_display}
+                </span>
+              </td>
+              <td>{formatDate(ticket.created_at)}</td>
+              <td>{formatDate(ticket.updated_at)}</td>
+              <td>
+                <Link to={`/support/ticket/${ticket.id}`} className="view-ticket-button">
+                  Detalhes
+                </Link>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {tickets.map((ticket) => (
-              <tr key={ticket.id}>
-                <td>#{ticket.id}</td>
-                <td>{ticket.title}</td>
-                <td>
-                  <span className={`status-badge ${getStatusClass(ticket.status)}`}>
-                    {ticket.status_display}
-                  </span>
-                </td>
-                <td>{ticket.priority_display}</td>
-                <td>{formatDate(ticket.created_at)}</td>
-                <td>
-                  <Link to={`/support/ticket/${ticket.id}`} className="view-ticket-button">
-                    Ver Detalhes
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

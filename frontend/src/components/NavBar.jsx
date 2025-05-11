@@ -53,15 +53,14 @@ function NavBar() {
         <Link to="/home" className="nav-link">Início</Link>
         {isAuthenticated ? (
           <>
-            {(isRevendedor) && (
+            {(isRevendedor || isAdmin) && (
               <Link to="/orcamento" className="nav-link">Orçamento</Link>
             )}
-            <Link to="/support" className="nav-link">Suporte</Link>
+            {(!isAdmin) && (
+              <Link to="/support" className="nav-link">Suporte</Link>
+            )}
             {isAdmin && (
-              <>
-                <Link to="/admin" className="nav-link admin-link">Admin</Link>
-                <Link to="/admin/support" className="nav-link admin-link">Central de Suporte</Link>
-              </>
+              <Link to="/admin" className="nav-link admin-link">Admin Dashboard</Link>
             )}
             <button onClick={handleLogout} className="nav-bar-button">Sair</button>
           </>

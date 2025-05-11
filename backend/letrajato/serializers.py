@@ -81,15 +81,15 @@ class TicketMessageSerializer(serializers.ModelSerializer):
 class SupportTicketSerializer(serializers.ModelSerializer):
     messages = TicketMessageSerializer(many=True, read_only=True)
     status_display = serializers.SerializerMethodField()
-    priority_display = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
     
     class Meta:
         model = SupportTicket
-        fields = ['id', 'title', 'status', 'status_display', 'priority', 
-                 'priority_display', 'created_at', 'updated_at', 'closed_at', 'messages']
+        fields = ['id', 'title', 'status', 'status_display',
+                  'created_at', 'updated_at', 'closed_at', 'messages', 'username']
         
     def get_status_display(self, obj):
         return obj.get_status_display()
-        
-    def get_priority_display(self, obj):
-        return obj.get_priority_display()
+    
+    def get_username(self, obj):
+        return obj.user.username if obj.user else "Unknown"
