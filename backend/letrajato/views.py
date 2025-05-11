@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer, NoteSerializer
+from .serializers import UserSerializer, NoteSerializer, SupportTicketSerializer, TicketMessageSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Note, CustomUser, Revendedor
+from .models import Note, CustomUser, Revendedor, SupportTicket, TicketMessage
 from django.core.mail import send_mail, EmailMultiAlternatives
 import requests
 from django.conf import settings
@@ -16,6 +16,7 @@ import os
 import base64
 import time
 from email.mime.base import MIMEBase
+from django.utils import timezone
 
 class NoteListCreate(generics.ListCreateAPIView):
     serializer_class = NoteSerializer
@@ -161,7 +162,7 @@ class CreateUserView(generics.CreateAPIView):
                 subject=admin_subject,
                 body=admin_plain_message,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["letrajato@gmail.com"]
+                to=["rftolini@gmail.com"]
             )
             email_message.attach_alternative(admin_html_message, "text/html")
             email_message.send(fail_silently=True)
@@ -513,3 +514,125 @@ class CheckAdminStatusView(APIView):
         return Response({
             'is_admin': is_admin,
         }, status=status.HTTP_200_OK)
+
+class TicketListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        # For admin users, show all tickets, for regular users, show only their tickets
+        if request.user.is_staff:
+            tickets = SupportTicket.objects.all().order_by('-created_at')
+        else:
+            tickets = SupportTicket.objects.filter(user=request.user).order_by('-created_at')
+            
+        serializer = SupportTicketSerializer(tickets, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        # Create a new ticket
+        data = request.data.copy()
+        data['user'] = request.user.id
+        
+        serializer = SupportTicketSerializer(data=data)
+        if serializer.is_valid():
+            ticket = serializer.save(user=request.user)
+            
+            # Create the first message
+            if 'message' in request.data and request.data['message']:
+                TicketMessage.objects.create(
+                    ticket=ticket,
+                    sender=request.user,
+                    message=request.data['message'],
+                    is_from_admin=False
+                )
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TicketDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_object(self, ticket_id, user):
+        try:
+            # Admin can see all tickets, users can only see their own
+            if user.is_staff:
+                return SupportTicket.objects.get(id=ticket_id)
+            return SupportTicket.objects.get(id=ticket_id, user=user)
+        except SupportTicket.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, ticket_id):
+        ticket = self.get_object(ticket_id, request.user)
+        serializer = SupportTicketSerializer(ticket)
+        return Response(serializer.data)
+    
+    def patch(self, request, ticket_id):
+        # Update ticket status
+        ticket = self.get_object(ticket_id, request.user)
+        
+        # Only admin can change status
+        if 'status' in request.data and not request.user.is_staff:
+            return Response(
+                {"error": "Only admin can change ticket status"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        serializer = SupportTicketSerializer(ticket, data=request.data, partial=True)
+        if serializer.is_valid():
+            # If closing ticket, set closed_at timestamp
+            if request.data.get('status') == 'closed' and ticket.status != 'closed':
+                serializer.save(closed_at=timezone.now())
+            else:
+                serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class TicketMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_ticket(self, ticket_id, user):
+        try:
+            # Admin can access all tickets, users only their own
+            if user.is_staff:
+                return SupportTicket.objects.get(id=ticket_id)
+            return SupportTicket.objects.get(id=ticket_id, user=user)
+        except SupportTicket.DoesNotExist:
+            raise Http404
+    
+    def get(self, request, ticket_id):
+        # Get all messages for a ticket
+        ticket = self.get_ticket(ticket_id, request.user)
+        messages = ticket.messages.all().order_by('created_at')
+        serializer = TicketMessageSerializer(messages, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request, ticket_id):
+        # Add a message to a ticket
+        ticket = self.get_ticket(ticket_id, request.user)
+        
+        # Don't allow messages on closed tickets
+        if ticket.status == 'closed':
+            return Response(
+                {"error": "Cannot add messages to closed tickets"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        data = {
+            'message': request.data.get('message'),
+            'is_from_admin': request.user.is_staff,
+        }
+        
+        serializer = TicketMessageSerializer(data=data)
+        if serializer.is_valid():
+            # If admin responds and ticket is open, set to in_progress
+            if request.user.is_staff and ticket.status == 'open':
+                ticket.status = 'in_progress'
+                ticket.save()
+                
+            message = serializer.save(
+                ticket=ticket,
+                sender=request.user,
+            )
+            
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

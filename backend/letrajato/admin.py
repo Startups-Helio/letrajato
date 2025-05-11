@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Revendedor, Note
+from .models import CustomUser, Revendedor, Note, SupportTicket, TicketMessage
 
 
 class RevendedorInline(admin.StackedInline):
@@ -114,6 +114,19 @@ class NoteAdmin(admin.ModelAdmin):
     list_filter = ["created_at"]
 
 
+class TicketMessageInline(admin.TabularInline):
+    model = TicketMessage
+    extra = 0
+
+
+class SupportTicketAdmin(admin.ModelAdmin):
+    list_display = ['id', 'title', 'user', 'status', 'priority', 'created_at', 'updated_at']
+    list_filter = ['status', 'priority']
+    search_fields = ['title', 'user__username', 'user__email']
+    inlines = [TicketMessageInline]
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Revendedor, RevendedorAdmin)
 admin.site.register(Note, NoteAdmin)
+admin.site.register(SupportTicket, SupportTicketAdmin)

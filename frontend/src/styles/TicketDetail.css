@@ -1,0 +1,173 @@
+.ticket-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.ticket-header {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.ticket-header h2 {
+  color: #333;
+  margin: 1rem 0;
+}
+
+.ticket-meta {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  color: #6c757d;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #FF5207;
+  cursor: pointer;
+  font-weight: 500;
+  padding: 0;
+  display: inline-block;
+  text-decoration: none;
+  font-size: 1rem;
+}
+
+.back-button:hover {
+  color: #E64800;
+}
+
+.ticket-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.message {
+  max-width: 75%;
+  padding: 1rem;
+  border-radius: 12px;
+  position: relative;
+}
+
+.user-message {
+  align-self: flex-start;
+  background-color: #e3f2fd;
+}
+
+.admin-message {
+  align-self: flex-end;
+  background-color: #f7f3fc;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.sender-name {
+  font-weight: 600;
+  color: #495057;
+}
+
+.message-time {
+  color: #6c757d;
+}
+
+.message-content {
+  white-space: pre-line;
+}
+
+.no-messages {
+  text-align: center;
+  padding: 2rem 0;
+  color: #6c757d;
+}
+
+.message-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.message-input {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.message-input:focus {
+  border-color: #FF5207;
+  outline: none;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.send-button {
+  background-color: #FF5207;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.send-button:hover {
+  background-color: #E64800;
+}
+
+.send-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.close-ticket-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-ticket-button:hover {
+  background-color: #5a6268;
+}
+
+.ticket-closed-message {
+  text-align: center;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  font-style: italic;
+}

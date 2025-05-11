@@ -56,7 +56,13 @@ function NavBar() {
             {(isRevendedor) && (
               <Link to="/orcamento" className="nav-link">Orçamento</Link>
             )}
-            {isAdmin && <Link to="/admin" className="nav-link admin-link">Admin</Link>}
+            <Link to="/support" className="nav-link">Suporte</Link>
+            {isAdmin && (
+              <>
+                <Link to="/admin" className="nav-link admin-link">Admin</Link>
+                <Link to="/admin/support" className="nav-link admin-link">Central de Suporte</Link>
+              </>
+            )}
             <button onClick={handleLogout} className="nav-bar-button">Sair</button>
           </>
         ) : (

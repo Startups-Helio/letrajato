@@ -14,6 +14,7 @@ function AdminDashboard() {
     
     const loadUsers = async () => {
         try {
+            setLoading(true);
             const response = await api.get('/letrajato/admin/users/');
             setUsers(response.data);
         } catch (error) {
@@ -148,7 +149,7 @@ function AdminDashboard() {
                     </div>
                 )}
                 
-                {/* Atividades Secundárias Section - New addition */}
+                {/* Atividades Secundárias Section */}
                 {cnpjData.atividades_secundarias && cnpjData.atividades_secundarias.length > 0 && (
                     <div className="cnpj-section">
                         <h4>Atividades Secundárias</h4>
@@ -206,6 +207,7 @@ function AdminDashboard() {
                                             <button 
                                                 className="toggle-button"
                                                 onClick={() => toggleUserExpand(user.id)}
+                                                aria-label={expandedUser === user.id ? "Esconder detalhes" : "Mostrar detalhes"}
                                             >
                                                 {expandedUser === user.id ? "▼" : "►"}
                                             </button>
