@@ -14,6 +14,7 @@ import api from "./api"
 import Support from './pages/Support';
 import AdminSupport from './pages/AdminSupport';
 import TicketDetail from './components/TicketDetail';
+import Faq from "./pages/Faq"
 
 function AdminRoute({ children }) {
   const [isAdmin, setIsAdmin] = useState(null);
@@ -82,6 +83,7 @@ function App() {
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>
+        <Route path="/faq" element = {<Faq />}/>
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminRoute>
