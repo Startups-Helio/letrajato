@@ -57,12 +57,12 @@ function NavBar() {
               <Link to="/orcamento" className="nav-link">Orçamento</Link>
             )}
             {isAdmin && <Link to="/admin" className="nav-link admin-link">Admin</Link>}
-            <button onClick={handleLogout} className="nav-button">Sair</button>
+            <button onClick={handleLogout} className="nav-bar-button">Sair</button>
           </>
         ) : (
           <>
             <Link to="/login" className="nav-link">Entrar</Link>
-            <Link to="/register" className="nav-button">Registrar</Link>
+            <Link to="/register" className="nav-bar-button">Registrar</Link>
           </>
         )}
       </div>

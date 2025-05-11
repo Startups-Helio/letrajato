@@ -34,7 +34,8 @@
   color: #FF5207;
 }
 
-.nav-button {
+.nav-bar-button {
+  font-size: medium;
   background-color: #FF5207;
   color: white;
   padding: 0.6rem 1.2rem;
@@ -42,6 +43,8 @@
   font-weight: 500;
   transition: background-color 0.3s;
   text-decoration: none;
+  border: none;
+  cursor: pointer;
 }
 
 .nav-button:hover {
