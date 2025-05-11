@@ -10,5 +10,7 @@ urlpatterns = [
     path("verify-status/", views.UserVerificationStatusView.as_view(), name="verify-status"),
     path("admin/users/", views.AdminUsersView.as_view(), name="admin-users"),
     path("check-admin/", views.CheckAdminStatusView.as_view(), name="check-admin"),
-
+    path("tickets/", views.TicketListCreateView.as_view(), name="ticket-list-create"),
+    path("tickets/<int:ticket_id>/", views.TicketDetailView.as_view(), name="ticket-detail"),
+    path("tickets/<int:ticket_id>/messages/", views.TicketMessageView.as_view(), name="ticket-messages"),
 ]

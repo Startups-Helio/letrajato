@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from .models import CustomUser, Revendedor
 from rest_framework import serializers
-from .models import Note
+from .models import Note, SupportTicket, TicketMessage
 
 class RevendedorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -67,3 +67,29 @@ class NoteSerializer(serializers.ModelSerializer):
         model = Note
         fields = ["id", "title", "content", "created_at", "author"]
         extra_kwargs = {"author": {"read_only": True}}
+
+class TicketMessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = TicketMessage
+        fields = ['id', 'message', 'is_from_admin', 'sender_name', 'created_at']
+        
+    def get_sender_name(self, obj):
+        return obj.sender.username
+
+class SupportTicketSerializer(serializers.ModelSerializer):
+    messages = TicketMessageSerializer(many=True, read_only=True)
+    status_display = serializers.SerializerMethodField()
+    username = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = SupportTicket
+        fields = ['id', 'title', 'status', 'status_display',
+                  'created_at', 'updated_at', 'closed_at', 'messages', 'username']
+        
+    def get_status_display(self, obj):
+        return obj.get_status_display()
+    
+    def get_username(self, obj):
+        return obj.user.username if obj.user else "Unknown"

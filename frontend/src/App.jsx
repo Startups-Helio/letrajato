@@ -11,6 +11,9 @@ import VerifiedRoute from "./components/VerifiedRoute"
 import VerificationPending from "./pages/VerificationPending"
 import Admin from "./pages/Admin"
 import api from "./api" 
+import Support from './pages/Support';
+import AdminSupport from './pages/AdminSupport';
+import TicketDetail from './components/TicketDetail';
 import Faq from "./pages/Faq"
 
 function AdminRoute({ children }) {
@@ -88,6 +91,30 @@ function App() {
             </AdminRoute>
           </ProtectedRoute>
         }/>
+        <Route 
+          path="/support" 
+          element={
+            <ProtectedRoute>
+              <Support />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/support/ticket/:ticketId" 
+          element={
+            <ProtectedRoute>
+              <TicketDetail isAdmin={false} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/support/ticket/:ticketId" 
+          element={
+            <AdminRoute>
+              <TicketDetail isAdmin={true} />
+            </AdminRoute>
+          } 
+        />
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </>

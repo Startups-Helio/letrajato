@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 function VerifiedRoute({ children, requiresRevendedor = false }) {
     const [isVerified, setIsVerified] = useState(null);
     const [isRevendedor, setIsRevendedor] = useState(null);
+    const [isStaff, setisStaff] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -19,14 +20,17 @@ function VerifiedRoute({ children, requiresRevendedor = false }) {
             if (response.status === 200) {
                 setIsVerified(response.data.verificado);
                 setIsRevendedor(response.data.is_revendedor);
+                setisStaff(response.data.is_staff);
             } else {
                 setIsVerified(false);
                 setIsRevendedor(false);
+                setisStaff(false);
             }
         } catch (error) {
             console.error("Error checking verification status:", error);
             setIsVerified(false);
             setIsRevendedor(false);
+            setisStaff(false);
         } finally {
             setLoading(false);
         }
@@ -40,7 +44,7 @@ function VerifiedRoute({ children, requiresRevendedor = false }) {
         return <Navigate to="/verification-pending" />;
     }
 
-    if (!isRevendedor) {
+    if (!isRevendedor && !isStaff) {
         return <Navigate to="/home" />;
     }
 

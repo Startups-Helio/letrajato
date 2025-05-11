@@ -42,7 +42,6 @@ function RegisterForm({route, method}){
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Check if all required fields are filled
     if (!username) {
       alert("Por favor, preencha o nome de usuário.");
       return;
@@ -108,6 +107,7 @@ function RegisterForm({route, method}){
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         placeholder="Nome de Usuário"
+        maxLength="25"
         required
       />
       <span className={username?"field-status":"field-status-required"}>{username ? "✓" : "*"}</span>

@@ -34,8 +34,7 @@ function Home() {
         title: "Suporte",
         icon: "🛠️",
         description: "Entre em contato com nossa equipe técnica",
-        link: "mailto:letrajato.suporte@gmail.com",
-        external: true
+        link: "/support"
       }
     ]);
   }, []);
@@ -62,7 +61,7 @@ function Home() {
 
   const canAccessService = (service) => {
     if (!service.requiresVerification) return true;
-    return userData?.verificado && userData?.is_revendedor;
+    return userData.is_staff || (userData?.verificado && userData?.is_revendedor);
   };
 
   const getGreeting = () => {
@@ -95,7 +94,7 @@ function Home() {
             <div className="status-item">
               <span className="status-label">Tipo de conta:</span>
               <span className="status-value">
-                {userData?.is_revendedor ? "Revendedor" : "Cliente"}
+                {userData?.is_staff ? "Administrador" : (userData?.is_revendedor ? "Revendedor" : "Cliente")}
               </span>
             </div>
             
@@ -148,7 +147,7 @@ function Home() {
                 )
               ) : (
                 <span className="service-restricted">
-                  Requer verificação
+                  {userData?.is_revendedor ? 'Requer verificação' : 'Apenas para revendedores'}
                 </span>
               )}
             </div>

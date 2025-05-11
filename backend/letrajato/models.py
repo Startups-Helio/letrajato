@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
 from .managers import CustomUserManager
 import uuid
+from django.utils import timezone
 
 class Note(models.Model):
     title = models.CharField(max_length=100)
@@ -18,7 +19,7 @@ class Note(models.Model):
 class CustomUser(AbstractUser):
 
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=150)
+    username = models.CharField(max_length=25)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -48,3 +49,36 @@ class Revendedor(models.Model):
         if not self.verification_token:
             self.verification_token = uuid.uuid4()
         super().save(*args, **kwargs)
+
+
+class SupportTicket(models.Model):
+    STATUS_CHOICES = (
+        ('open', 'Aberto'),
+        ('in_progress', 'Em andamento'),
+        ('closed', 'Fechado'),
+    )
+    
+    title = models.CharField(max_length=200)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='support_tickets')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='open')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    closed_at = models.DateTimeField(null=True, blank=True)
+    
+    def close(self):
+        self.status = 'closed'
+        self.closed_at = timezone.now()
+        self.save()
+    
+    def __str__(self):
+        return f"{self.title} ({self.get_status_display()})"
+
+class TicketMessage(models.Model):
+    ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    message = models.TextField()
+    is_from_admin = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Message from {self.sender.username} on {self.ticket.title}"
