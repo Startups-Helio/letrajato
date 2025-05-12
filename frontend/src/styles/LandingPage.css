@@ -73,23 +73,26 @@ a {
 
 /* Seção Hero */
 .hero-section {
-  background-image: url(../assets/a.png);
+/*  background-image: url(../assets/a.png);
   background-repeat: no-repeat;
   background-size: cover;
-  height: 100vh; /* Changed from min-height to height */
+*/
+  height: 100vh; /* Changed to 100vh for full viewport height */
+  min-height: 800px; /* Added minimum height to ensure it's tall enough */
   display: flex;
-  align-items: center;
+  align-items: top;
   justify-content: center;
   padding: 0;
-  mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.95) 40%);
-  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.95) 40%);
 }
 
 .hero-buttons-container {
   display: flex;
   width: 100%;
-  height: 100%;
-  min-height: 100vh;
+  height: 90%;
+  padding: 30px;
+  gap: 20px; /* Add space between the buttons */
+  justify-content: center; /* Center the buttons horizontally */
+  align-items: center; /* Center the buttons vertically */
 }
 
 .left-button, .right-button {
@@ -100,13 +103,22 @@ a {
   height: 100%;
   transition: background-color 0.3s;
   position: relative;
+  overflow: hidden; /* Add this to contain the video */
 }
 
 .left-button {
+  border-radius: 10px;
+  background-image: url(../assets/image5.jpeg);
+  background-size: cover;
+  background-position: center;
   background-color: rgba(255, 82, 7, 0.7);
 }
 
 .right-button {
+  border-radius: 10px;
+  background-image: url(../assets/image3.jpeg);
+  background-size: cover;
+  background-position: right;
   background-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -118,11 +130,29 @@ a {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
+.background-video {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+  background-color: rgba(255, 82, 7, 0.3); /* Added slight background color */
+}
+
+.left-button:hover .background-video {
+  opacity: 1;
+  -ms-perspective-origin-y: 10%;
+}
+
 .button-content {
   text-align: center;
   color: white;
   padding: 2rem;
-  z-index: 2;
+  z-index: 2; /* Ensure content stays above video */
 }
 
 .button-content h2 {

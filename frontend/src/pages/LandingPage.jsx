@@ -1,12 +1,37 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "../styles/LandingPage.css";
-import landingImage from "../assets/a.png";
-import Banner from "../components/Banner";
+import backgroundVideo from "../assets/lj8080.mp4";
 import FeatureCard from "../components/FeatureCard";
 import NavBar from "../components/NavBar";
 
 function LandingPage() {
+  const videoRef = useRef(null);
+  
+  useEffect(() => {
+    const leftButton = document.querySelector('.left-button');
+    const video = videoRef.current;
+    
+    if (leftButton && video) {
+      leftButton.addEventListener('mouseenter', () => {
+        video.play();
+      });
+      
+      leftButton.addEventListener('mouseleave', () => {
+        video.pause();
+        // Optionally reset video to beginning
+        // video.currentTime = 0;
+      });
+    }
+    
+    return () => {
+      if (leftButton && video) {
+        leftButton.removeEventListener('mouseenter', () => video.play());
+        leftButton.removeEventListener('mouseleave', () => video.pause());
+      }
+    };
+  }, []);
+
   // Array de features para facilitar a manutenção
   const features = [
     {
@@ -34,6 +59,15 @@ function LandingPage() {
         <section className="hero-section">
           <div className="hero-buttons-container">
             <div className="left-button">
+              <video 
+                ref={videoRef}
+                className="background-video" 
+                muted 
+                loop
+              >
+                <source src={backgroundVideo} type="video/mp4" />
+                Seu navegador não suporta vídeos.
+              </video>
               <div className="button-content">
                 <h2>Nossas Máquinas</h2>
                 <p>Conheça nossa linha de equipamentos de alta performance</p>
