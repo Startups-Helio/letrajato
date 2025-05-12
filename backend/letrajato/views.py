@@ -607,21 +607,27 @@ class TicketMessageView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
             
-        data = {
-            'message': request.data.get('message'),
-            'is_from_admin': request.user.is_staff,
-        }
+        message_text = request.data.get('message', '')
+        attachment = request.FILES.get('attachment', None)
         
-        serializer = TicketMessageSerializer(data=data)
-        if serializer.is_valid():
-            if request.user.is_staff and ticket.status == 'open':
-                ticket.status = 'in_progress'
-                ticket.save()
-                
-            message = serializer.save(
-                ticket=ticket,
-                sender=request.user,
+        # max 10MB
+        if attachment and attachment.size > 10 * 1024 * 1024:
+            return Response(
+                {"error": "File size exceeds 10MB limit"},
+                status=status.HTTP_400_BAD_REQUEST
             )
-            
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        message = TicketMessage.objects.create(
+            ticket=ticket,
+            sender=request.user,
+            message=message_text,
+            is_from_admin=request.user.is_staff,
+            attachment=attachment
+        )
+        
+        if request.user.is_staff and ticket.status == 'open':
+            ticket.status = 'in_progress'
+            ticket.save()
+        
+        serializer = TicketMessageSerializer(message, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

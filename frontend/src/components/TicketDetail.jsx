@@ -12,6 +12,9 @@ function TicketDetail({ isAdmin = false }) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
+  const [attachment, setAttachment] = useState(null);
+  const [downloadingAttachments, setDownloadingAttachments] = useState({});
+  const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
   const loadTicketData = async () => {
@@ -42,17 +45,51 @@ function TicketDetail({ isAdmin = false }) {
     }
   }, [messages]);
 
+  const handleAttachmentChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        alert("O arquivo é muito grande. O limite é de 10MB.");
+        fileInputRef.current.value = '';
+        return;
+      }
+      setAttachment(file);
+    }
+  };
+
+  const handleRemoveAttachment = () => {
+    setAttachment(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || sending) return;
+    if ((!newMessage.trim() && !attachment) || sending) return;
     
     try {
       setSending(true);
-      await api.post(`/letrajato/tickets/${ticketId}/messages/`, {
-        message: newMessage
+      
+      const formData = new FormData();
+      if (newMessage.trim()) {
+        formData.append('message', newMessage);
+      }
+      if (attachment) {
+        formData.append('attachment', attachment);
+      }
+      
+      await api.post(`/letrajato/tickets/${ticketId}/messages/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       
       setNewMessage('');
+      setAttachment(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       loadTicketData();
     } catch (err) {
       setError('Erro ao enviar mensagem. Por favor, tente novamente.');
@@ -76,6 +113,35 @@ function TicketDetail({ isAdmin = false }) {
     }
   };
 
+  const handleDownload = async (attachmentUrl, fileName, attachmentId) => {
+    try {
+      setDownloadingAttachments(prev => ({...prev, [attachmentId]: true}));
+      
+      const url = api.defaults.baseURL + attachmentUrl.replace(/^\/media/, "/media");
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to download: ${response.statusText}`);
+      }
+      
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Download error:", error);
+      alert("Erro ao baixar o arquivo. Tente novamente mais tarde.");
+    } finally {
+      setDownloadingAttachments(prev => ({...prev, [attachmentId]: false}));
+    }
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleString('pt-BR');
@@ -88,6 +154,12 @@ function TicketDetail({ isAdmin = false }) {
       case 'closed': return 'status-closed';
       default: return '';
     }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else return (bytes / 1048576).toFixed(1) + ' MB';
   };
 
   if (loading) {
@@ -137,6 +209,28 @@ function TicketDetail({ isAdmin = false }) {
                   <span className="message-time">{formatDate(msg.created_at)}</span>
                 </div>
                 <div className="message-content">{msg.message}</div>
+                
+                {msg.attachment_url && (
+                  <div className="attachment-container">
+                    <div 
+                      onClick={() => handleDownload(msg.attachment_url, msg.attachment_name, msg.id)}
+                      className="attachment-link"
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className="attachment-icon">
+                        {downloadingAttachments[msg.id] ? '⏳' : getFileIcon(msg.attachment_name)}
+                      </div>
+                      <div className="attachment-info">
+                        <span className="attachment-name">
+                          {msg.attachment_name}
+                        </span>
+                        <span className="attachment-action">
+                          {downloadingAttachments[msg.id] ? 'Baixando...' : 'Baixar anexo'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))
           )}
@@ -150,13 +244,39 @@ function TicketDetail({ isAdmin = false }) {
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Digite sua mensagem..."
               className="message-input"
-              required
             />
+            
+            <div className="attachment-section">
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                onChange={handleAttachmentChange}
+                id="attachment-input"
+                className="attachment-input"
+              />
+              <label htmlFor="attachment-input" className="attachment-button">
+                <span className="attachment-icon">📎</span>
+                Anexar arquivo
+              </label>
+              {attachment && (
+                <div className="selected-attachment">
+                  <span>{attachment.name} ({formatFileSize(attachment.size)})</span>
+                  <button 
+                    type="button" 
+                    className="remove-attachment-btn" 
+                    onClick={handleRemoveAttachment}
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+            
             <div className="form-actions">
               <button 
                 type="submit" 
                 className="send-button"
-                disabled={sending || !newMessage.trim()}
+                disabled={sending || (!newMessage.trim() && !attachment)}
               >
                 {sending ? 'Enviando...' : 'Enviar'}
               </button>
@@ -179,6 +299,26 @@ function TicketDetail({ isAdmin = false }) {
       </div>
     </div>
   );
+}
+
+function getFileIcon(filename) {
+  if (!filename) return '📄';
+  
+  const extension = filename.split('.').pop().toLowerCase();
+  switch (extension) {
+    case 'pdf': return '📄';
+    case 'jpg': 
+    case 'jpeg':
+    case 'png':
+    case 'gif': return '🖼️';
+    case 'doc':
+    case 'docx': return '📝';
+    case 'xls':
+    case 'xlsx': return '📊';
+    case 'zip':
+    case 'rar': return '🗜️';
+    default: return '📄';
+  }
 }
 
 export default TicketDetail;

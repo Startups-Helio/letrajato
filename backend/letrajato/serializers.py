@@ -70,13 +70,23 @@ class NoteSerializer(serializers.ModelSerializer):
 
 class TicketMessageSerializer(serializers.ModelSerializer):
     sender_name = serializers.SerializerMethodField()
+    attachment_url = serializers.SerializerMethodField()
     
     class Meta:
         model = TicketMessage
-        fields = ['id', 'message', 'is_from_admin', 'sender_name', 'created_at']
+        fields = ['id', 'message', 'is_from_admin', 'sender_name', 'created_at', 
+                  'attachment', 'attachment_name', 'attachment_url']
         
     def get_sender_name(self, obj):
         return obj.sender.username
+        
+    def get_attachment_url(self, obj):
+        if obj.attachment:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.attachment.url)
+            return obj.attachment.url
+        return None
 
 class SupportTicketSerializer(serializers.ModelSerializer):
     messages = TicketMessageSerializer(many=True, read_only=True)
