@@ -162,7 +162,7 @@ class CreateUserView(generics.CreateAPIView):
                 subject=admin_subject,
                 body=admin_plain_message,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["rftolini@gmail.com"]
+                to=["letrajato@gmail.com"]
             )
             email_message.attach_alternative(admin_html_message, "text/html")
             email_message.send(fail_silently=True)
