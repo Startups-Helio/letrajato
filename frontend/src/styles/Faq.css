@@ -145,9 +145,29 @@
   text-align: center;
 }
 
+/*-----------------------------------
+  5) Zaia
+------------------------------------*/
+/* 1. Remova qualquer max-width anterior */
+.zaia-chat-bot iframe {
+  max-width: none;
+  width: 100%;    /* pega 100% do container */
+  height: 600px;              /* ou use 100% se o container for definido em height */
+  border: 1px solid #eee;
+  border-radius: 0;           /* sem cantos arredondados, se quiser */
+  box-shadow: none;           /* opcional: sem sombra */
+}
+
+/* 2. Garanta que o container também seja full width */
+.zaia-chat-bot {
+  width: 100%;
+  margin: 0;                  /* sem margem lateral */
+  padding: 0;                 
+}
+
 
 /*-----------------------------------
-  4) Responsividade (mobile/tablet)
+  6) Responsividade (mobile/tablet)
 ------------------------------------*/
 @media (max-width: 768px) {
   .gray-section,
@@ -167,4 +187,8 @@
 
   .gray-image { text-align: center; }
   .white-links { align-items: center; }
+
+  .zaia-chat-bot iframe {
+    height: 400px;
+  }
 }
