@@ -146,22 +146,20 @@
 }
 
 /*-----------------------------------
-  5) Zaia
+  5) Zaia chat
 ------------------------------------*/
-/* 1. Remova qualquer max-width anterior */
 .zaia-chat-bot iframe {
   max-width: none;
-  width: 100%;    /* pega 100% do container */
-  height: 600px;              /* ou use 100% se o container for definido em height */
+  width: 100%;    
+  height: 600px;
   border: 1px solid #eee;
-  border-radius: 0;           /* sem cantos arredondados, se quiser */
-  box-shadow: none;           /* opcional: sem sombra */
+  border-radius: 0;
+  box-shadow: none;
 }
 
-/* 2. Garanta que o container também seja full width */
 .zaia-chat-bot {
   width: 100%;
-  margin: 0;                  /* sem margem lateral */
+  margin: 0;
   padding: 0;                 
 }
 
