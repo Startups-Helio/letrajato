@@ -3,6 +3,59 @@ import "../styles/Faq.css";
 import NavBar from '../components/NavBar';
 import { Link } from 'react-router-dom';
 
+const faqs1 = [
+    {
+        question: "Pergunta 1",
+        answer: "Resposta 1"
+      },
+      {
+        question: "Pergunta 2",
+        answer: "Resposta 2"
+      },
+      {
+        question: "Pergunta 3",
+        answer: "Resposta 3"
+      },
+      {
+        question: "Pergunta 4",
+        answer: "Resposta 4"
+      },
+  ];
+
+ const faqs2 = [
+    {
+        question: "Pergunta 5",
+        answer: "Resposta 5"
+      },
+      {
+        question: "Pergunta 6",
+        answer: "Resposta 6"
+      },
+      {
+        question: "Pergunta 7",
+        answer: "Resposta 7"
+      },
+      {
+        question: "Pergunta 8",
+        answer: "Resposta 8"
+      },
+  ];
+
+  const faqs3 = [
+    {
+        question: "Pergunta 9",
+        answer: "Resposta 9"
+      },
+      {
+        question: "Pergunta 10",
+        answer: "Resposta 10"
+      },
+      {
+        question: "Pergunta 11",
+        answer: "Resposta 11"
+      },
+  ];
+
 function Faq() {
   return (
     <div className="suport-container">
@@ -28,8 +81,36 @@ function Faq() {
                     <Link to="/*">Become verified</Link>
                 </div>
                 <div className="white-questions">
-                    
+                    {faqs1.map((item, idx) => (
+                    <details key={idx}>
+                        <summary>{item.question}</summary>
+                        <p>{item.answer}</p>
+                    </details>
+                    ))}
                 </div>
+                <div className="white-questions">
+                    {faqs2.map((item, idx) => (
+                    <details key={idx}>
+                        <summary>{item.question}</summary>
+                        <p>{item.answer}</p>
+                    </details>
+                    ))}
+                </div>
+                <div className="white-questions">
+                    {faqs3.map((item, idx) => (
+                    <details key={idx}>
+                        <summary>{item.question}</summary>
+                        <p>{item.answer}</p>
+                    </details>
+                    ))}
+                    <button className="see-more">
+                        See More...
+                    </button>
+                </div>
+            </div>
+        </section>
+        <section className="white-section">
+            <div className="zaia-chat-bot">
             </div>
         </section>
     </div>

@@ -3,10 +3,10 @@
 ------------------------------------*/
 .gray-section,
 .white-section {
-  max-width: 1200px;      /* largura máxima para desktop */
-  margin: 0 auto;         /* centraliza horizontalmente */
-  padding: 2rem;          /* espaçamento interno genérico */
-  box-sizing: border-box; /* inclui padding na largura total */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 /*-----------------------------------
@@ -23,12 +23,12 @@
 
 .gray-text,
 .gray-image {
-  flex: 1 1 45%;      /* ocupa até ~45% cada, cresce/encolhe se precisar */
-  min-width: 300px;   /* evita encolher demais em mobile */
+  flex: 1 1 45%;
+  min-width: 300px;
 }
 
 .gray-image {
-  text-align: right;  /* alinha a img à direita do bloco */
+  text-align: right;
 }
 
 .gray-image img {
@@ -38,8 +38,57 @@
 }
 
 /*-----------------------------------
-  3) White Section: Links + Perguntas
+  3) White Section: Links + Perguntas + button
 ------------------------------------*/
+.white-section .inner {
+  display: flex;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.white-links {
+  flex: 0 0 200px;
+}
+
+.white-questions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.white-questions details {
+  border-top: 1px solid #ddd;
+  padding: 1rem 0;
+}
+
+.white-questions summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  position: relative;
+  padding-right: 1.5em;
+}
+
+.white-questions summary::-webkit-details-marker {
+  display: none;
+}
+
+.white-questions summary::after {
+  content: "⌄";
+  position: absolute;
+  right: 0;
+  transition: transform 0.3s ease;
+}
+
+.white-questions details[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.white-questions p {
+  margin: 0.5rem 0 0;
+  line-height: 1.4;
+}
+
 .white-section {
   background-color: #ffffff;
   display: flex;
@@ -48,11 +97,11 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 2rem;
-  margin-top: 1rem;   /* separa do gray-section */
+  margin-top: 1rem;
 }
 
 .white-links {
-  flex: 0 0 25%;      /* fixa em 25% do container */
+  flex: 0 0 25%;
   min-width: 200px;
   display: flex;
   flex-direction: column;
@@ -70,10 +119,32 @@
 }
 
 .white-questions {
-  flex: 1 1 70%;      /* ocupa o resto do espaço */
+  flex: 1 1 70%;
   min-width: 300px;
-  /* aqui você pode implementar seu componente de accordion */
 }
+
+.white-questions .see-more {
+  display: inline-block;
+  margin: 0.2rem auto 0;
+  padding: 0.75rem 1.5rem;
+  background-color: #ff6600;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;                 
+  border: none;                    
+  border-radius: 4px;
+  cursor: pointer;                 
+  transition: background-color 0.3s ease;
+}
+
+.white-questions .see-more:hover {
+  background-color: #e65500;
+}
+
+.white-questions:last-of-type {
+  text-align: center;
+}
+
 
 /*-----------------------------------
   4) Responsividade (mobile/tablet)
