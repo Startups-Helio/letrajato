@@ -12,8 +12,10 @@ function TicketDetail({ isAdmin = false }) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(null);
-  const [attachment, setAttachment] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [fileError, setFileError] = useState(null);
   const [downloadingAttachments, setDownloadingAttachments] = useState({});
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -45,55 +47,75 @@ function TicketDetail({ isAdmin = false }) {
     }
   }, [messages]);
 
-  const handleAttachmentChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        alert("O arquivo é muito grande. O limite é de 10MB.");
-        fileInputRef.current.value = '';
-        return;
-      }
-      setAttachment(file);
+  const handleFileChange = (e) => {
+    // Get newly selected files
+    const newFiles = Array.from(e.target.files);
+    
+    // Check if total combined files would exceed 5
+    if (newFiles.length + selectedFiles.length > 5) {
+      setFileError("Você pode anexar no máximo 5 arquivos por mensagem.");
+      return;
     }
-  };
-
-  const handleRemoveAttachment = () => {
-    setAttachment(null);
+    
+    // Combine existing files with new files
+    setFileError(null);
+    setSelectedFiles(prevFiles => [...prevFiles, ...newFiles]);
+    
+    // Reset the file input so the same file can be selected again if needed
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
+  const handleRemoveFile = (indexToRemove) => {
+    setSelectedFiles(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  // Reset the file input by recreating it
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if ((!newMessage.trim() && !attachment) || sending) return;
+    if ((!newMessage.trim() && selectedFiles.length === 0) || sending) return;
     
     try {
       setSending(true);
       
       const formData = new FormData();
-      if (newMessage.trim()) {
-        formData.append('message', newMessage);
-      }
-      if (attachment) {
-        formData.append('attachment', attachment);
-      }
+      // Make sure to include the message field, even if empty
+      formData.append('message', newMessage || ''); 
       
-      await api.post(`/letrajato/tickets/${ticketId}/messages/`, formData, {
+      // Add each file with the correct field name
+      selectedFiles.forEach(file => {
+        formData.append('uploaded_files', file);
+      });
+      
+      // Debug the request
+      console.log("Sending FormData with:", {
+        message: newMessage,
+        filesCount: selectedFiles.length
+      });
+      
+      const response = await api.post(`/letrajato/tickets/${ticketId}/messages/`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
       
+      console.log("Response:", response.data);
+      
       setNewMessage('');
-      setAttachment(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      setSelectedFiles([]);
+      setFileInputKey(Date.now());
+      
       loadTicketData();
     } catch (err) {
-      setError('Erro ao enviar mensagem. Por favor, tente novamente.');
       console.error('Error sending message:', err);
+      // Show more details about the error
+      if (err.response) {
+        console.error('Error response:', err.response.data);
+        setError(`Erro ao enviar mensagem: ${JSON.stringify(err.response.data)}`);
+      } else {
+        setError('Erro ao enviar mensagem. Por favor, tente novamente.');
+      }
     } finally {
       setSending(false);
     }
@@ -113,32 +135,35 @@ function TicketDetail({ isAdmin = false }) {
     }
   };
 
-  const handleDownload = async (attachmentUrl, fileName, attachmentId) => {
+  const handleDownload = async (fileUrl, fileName, attachmentId) => {
+    // Prevent downloading if already in progress
+    if (downloadingAttachments[attachmentId]) return;
+    
     try {
-      setDownloadingAttachments(prev => ({...prev, [attachmentId]: true}));
+      // Set downloading state for this attachment
+      setDownloadingAttachments(prev => ({ ...prev, [attachmentId]: true }));
       
-      const url = api.defaults.baseURL + attachmentUrl.replace(/^\/media/, "/media");
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to download: ${response.statusText}`);
-      }
-      
+      // Get the file
+      const response = await fetch(fileUrl);
       const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
       
+      // Create download link and trigger download
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = fileName;
+      link.href = url;
+      link.setAttribute('download', fileName);
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
+      link.remove();
+      
+      // Release the URL object
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Download error:", error);
-      alert("Erro ao baixar o arquivo. Tente novamente mais tarde.");
+      console.error('Error downloading file:', error);
+      setError('Erro ao baixar o anexo. Por favor, tente novamente.');
     } finally {
-      setDownloadingAttachments(prev => ({...prev, [attachmentId]: false}));
+      // Clear downloading state
+      setDownloadingAttachments(prev => ({ ...prev, [attachmentId]: false }));
     }
   };
 
@@ -210,25 +235,30 @@ function TicketDetail({ isAdmin = false }) {
                 </div>
                 <div className="message-content">{msg.message}</div>
                 
-                {msg.attachment_url && (
-                  <div className="attachment-container">
-                    <div 
-                      onClick={() => handleDownload(msg.attachment_url, msg.attachment_name, msg.id)}
-                      className="attachment-link"
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <div className="attachment-icon">
-                        {downloadingAttachments[msg.id] ? '⏳' : getFileIcon(msg.attachment_name)}
+                {/* Show attachments if available */}
+                {msg.attachments && msg.attachments.length > 0 && (
+                  <div className="attachments-container">
+                    <div className="attachments-header">Anexos ({msg.attachments.length})</div>
+                    {msg.attachments.map(attachment => (
+                      <div 
+                        key={attachment.id}
+                        onClick={() => handleDownload(attachment.file, attachment.filename, attachment.id)}
+                        className="attachment-link"
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <div className="attachment-icon">
+                          {downloadingAttachments[attachment.id] ? '⏳' : getFileIcon(attachment.filename)}
+                        </div>
+                        <div className="attachment-info">
+                          <span className="attachment-name">
+                            {attachment.filename}
+                          </span>
+                          <span className="attachment-action">
+                            {downloadingAttachments[attachment.id] ? 'Baixando...' : 'Baixar anexo'}
+                          </span>
+                        </div>
                       </div>
-                      <div className="attachment-info">
-                        <span className="attachment-name">
-                          {msg.attachment_name}
-                        </span>
-                        <span className="attachment-action">
-                          {downloadingAttachments[msg.id] ? 'Baixando...' : 'Baixar anexo'}
-                        </span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -246,37 +276,49 @@ function TicketDetail({ isAdmin = false }) {
               className="message-input"
             />
             
-            <div className="attachment-section">
+            <div className="file-upload-section">
+              <label htmlFor="file-upload" className="file-upload-label">
+                <span className="attachment-icon">📎</span>
+                {selectedFiles.length > 0 
+                  ? `Adicionar mais arquivos (${selectedFiles.length}/5)` 
+                  : 'Anexar arquivos (máx. 5)'}
+              </label>
               <input 
                 type="file" 
+                id="file-upload"
                 ref={fileInputRef}
-                onChange={handleAttachmentChange}
-                id="attachment-input"
-                className="attachment-input"
+                multiple
+                onChange={handleFileChange}
+                className="file-input" 
               />
-              <label htmlFor="attachment-input" className="attachment-button">
-                <span className="attachment-icon">📎</span>
-                Anexar arquivo
-              </label>
-              {attachment && (
-                <div className="selected-attachment">
-                  <span>{attachment.name} ({formatFileSize(attachment.size)})</span>
-                  <button 
-                    type="button" 
-                    className="remove-attachment-btn" 
-                    onClick={handleRemoveAttachment}
-                  >
-                    ✕
-                  </button>
+              
+              {selectedFiles.length > 0 && (
+                <div className="selected-files">
+                  <p>Arquivos selecionados: {selectedFiles.length}/5</p>
+                  <ul>
+                    {selectedFiles.map((file, index) => (
+                      <li key={index} className="selected-file-item">
+                        <span>{file.name} ({formatFileSize(file.size)})</span>
+                        <button 
+                          type="button"
+                          className="remove-file-btn"
+                          onClick={() => handleRemoveFile(index)}
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
+              {fileError && <p className="file-error">{fileError}</p>}
             </div>
             
             <div className="form-actions">
               <button 
                 type="submit" 
                 className="send-button"
-                disabled={sending || (!newMessage.trim() && !attachment)}
+                disabled={sending || (!newMessage.trim() && selectedFiles.length === 0)}
               >
                 {sending ? 'Enviando...' : 'Enviar'}
               </button>
@@ -301,24 +343,29 @@ function TicketDetail({ isAdmin = false }) {
   );
 }
 
-function getFileIcon(filename) {
-  if (!filename) return '📄';
-  
+const getFileIcon = (filename) => {
   const extension = filename.split('.').pop().toLowerCase();
+  
   switch (extension) {
-    case 'pdf': return '📄';
-    case 'jpg': 
+    case 'pdf':
+      return '📄';
+    case 'doc':
+    case 'docx':
+      return '📝';
+    case 'xls':
+    case 'xlsx':
+      return '📊';
+    case 'jpg':
     case 'jpeg':
     case 'png':
-    case 'gif': return '🖼️';
-    case 'doc':
-    case 'docx': return '📝';
-    case 'xls':
-    case 'xlsx': return '📊';
+    case 'gif':
+      return '🖼️';
     case 'zip':
-    case 'rar': return '🗜️';
-    default: return '📄';
+    case 'rar':
+      return '📦';
+    default:
+      return '📎';
   }
-}
+};
 
 export default TicketDetail;

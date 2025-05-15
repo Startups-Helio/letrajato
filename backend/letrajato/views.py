@@ -5,7 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserSerializer, NoteSerializer, SupportTicketSerializer, TicketMessageSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Note, CustomUser, Revendedor, SupportTicket, TicketMessage
+from rest_framework.parsers import MultiPartParser, FormParser
+from .models import Note, CustomUser, Revendedor, SupportTicket, TicketMessage, TicketAttachment
 from django.core.mail import send_mail, EmailMultiAlternatives
 import requests
 from django.conf import settings
@@ -583,51 +584,77 @@ class TicketDetailView(APIView):
 
 class TicketMessageView(APIView):
     permission_classes = [IsAuthenticated]
-    
-    def get_ticket(self, ticket_id, user):
-        try:
-            if user.is_staff:
-                return SupportTicket.objects.get(id=ticket_id)
-            return SupportTicket.objects.get(id=ticket_id, user=user)
-        except SupportTicket.DoesNotExist:
-            raise Http404
+    parser_classes = [MultiPartParser, FormParser]
     
     def get(self, request, ticket_id):
-        ticket = self.get_ticket(ticket_id, request.user)
-        messages = ticket.messages.all().order_by('created_at')
-        serializer = TicketMessageSerializer(messages, many=True)
-        return Response(serializer.data)
+        try:
+            ticket = SupportTicket.objects.get(id=ticket_id)
+            # Check if user owns the ticket or is admin
+            if request.user == ticket.user or request.user.is_staff:
+                messages = TicketMessage.objects.filter(ticket=ticket).order_by('created_at')
+                serializer = TicketMessageSerializer(messages, many=True, context={'request': request})
+                return Response(serializer.data)
+            else:
+                return Response(
+                    {"error": "You don't have permission to view messages for this ticket"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except SupportTicket.DoesNotExist:
+            return Response(
+                {"error": "Ticket not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
     
     def post(self, request, ticket_id):
-        ticket = self.get_ticket(ticket_id, request.user)
-        
-        if ticket.status == 'closed':
-            return Response(
-                {"error": "Cannot add messages to closed tickets"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        try:
+            ticket = SupportTicket.objects.get(id=ticket_id)
+            # Check if user owns the ticket or is admin
+            if request.user == ticket.user or request.user.is_staff:
+                data = request.data.copy()
+                data['ticket'] = ticket.id
+                data['sender'] = request.user.id
+                data['is_from_admin'] = request.user.is_staff
+                
+                # Get files from request
+                files = request.FILES.getlist('uploaded_files')
+                
+                # Validate file count
+                if len(files) > 5:
+                    return Response(
+                        {"error": "You can only upload up to 5 files per message"}, 
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                
+                # If message is empty but files are present, set a default message
+                if not data.get('message') and files:
+                    data['message'] = "" # Empty string is allowed when files are present
             
-        message_text = request.data.get('message', '')
-        attachment = request.FILES.get('attachment', None)
-        
-        # max 10MB
-        if attachment and attachment.size > 10 * 1024 * 1024:
+                serializer = TicketMessageSerializer(data=data)
+                if serializer.is_valid():
+                    message = serializer.save()
+                    
+                    # Create attachment objects for each file
+                    for file in files:
+                        TicketAttachment.objects.create(
+                            message=message,
+                            file=file,
+                            filename=file.name
+                        )
+                    
+                    # Update ticket status if needed
+                    if ticket.status == 'closed':
+                        ticket.status = 'open'
+                        ticket.save()
+                    
+                    return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(
+                    {"error": "You don't have permission to post messages to this ticket"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except SupportTicket.DoesNotExist:
             return Response(
-                {"error": "File size exceeds 10MB limit"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Ticket not found"}, 
+                status=status.HTTP_404_NOT_FOUND
             )
-        
-        message = TicketMessage.objects.create(
-            ticket=ticket,
-            sender=request.user,
-            message=message_text,
-            is_from_admin=request.user.is_staff,
-            attachment=attachment
-        )
-        
-        if request.user.is_staff and ticket.status == 'open':
-            ticket.status = 'in_progress'
-            ticket.save()
-        
-        serializer = TicketMessageSerializer(message, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)

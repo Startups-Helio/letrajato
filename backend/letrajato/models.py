@@ -76,16 +76,23 @@ class SupportTicket(models.Model):
 class TicketMessage(models.Model):
     ticket = models.ForeignKey(SupportTicket, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    message = models.TextField()
+    message = models.TextField(blank=True)  # Allow blank
     is_from_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    attachment = models.FileField(upload_to='ticket_attachments/%Y/%m/', null=True, blank=True)
-    attachment_name = models.CharField(max_length=255, null=True, blank=True)
     
     def __str__(self):
         return f"Message from {self.sender.username} on {self.ticket.title}"
+
+class TicketAttachment(models.Model):
+    message = models.ForeignKey(TicketMessage, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='ticket_attachments/%Y/%m/')
+    filename = models.CharField(max_length=255)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Attachment: {self.filename}"
     
     def save(self, *args, **kwargs):
-        if self.attachment and not self.attachment_name:
-            self.attachment_name = self.attachment.name.split('/')[-1]
+        if not self.filename and self.file:
+            self.filename = self.file.name.split('/')[-1]
         super().save(*args, **kwargs)
