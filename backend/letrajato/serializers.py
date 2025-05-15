@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from .models import CustomUser, Revendedor
+from .models import CustomUser, Revendedor, TicketAttachment
 from rest_framework import serializers
 from .models import Note, SupportTicket, TicketMessage
 
@@ -68,15 +68,43 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "content", "created_at", "author"]
         extra_kwargs = {"author": {"read_only": True}}
 
+class TicketAttachmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TicketAttachment
+        fields = ['id', 'file', 'filename', 'uploaded_at']
+
 class TicketMessageSerializer(serializers.ModelSerializer):
     sender_name = serializers.SerializerMethodField()
+    attachments = TicketAttachmentSerializer(many=True, read_only=True)
     
     class Meta:
         model = TicketMessage
-        fields = ['id', 'message', 'is_from_admin', 'sender_name', 'created_at']
-        
+        fields = ['id', 'ticket', 'sender', 'sender_name', 'message', 'is_from_admin', 'created_at', 'attachments']
+        read_only_fields = ['created_at']
+    
     def get_sender_name(self, obj):
         return obj.sender.username
+
+    def validate(self, data):
+        # Allow empty message if files are being uploaded
+        has_files = 'uploaded_files' in self.initial_data and self.initial_data.getlist('uploaded_files')
+        if not data.get('message') and not has_files:
+            raise serializers.ValidationError({"message": "Either message or files must be provided."})
+        return data
+
+    def validate_uploaded_files(self, value):
+        if len(value) > 5:
+            raise serializers.ValidationError("You can only upload up to 5 files per message.")
+        return value
+        
+    def create(self, validated_data):
+        uploaded_files = validated_data.pop('uploaded_files', [])
+        message = TicketMessage.objects.create(**validated_data)
+        
+        for file in uploaded_files:
+            TicketAttachment.objects.create(message=message, file=file, filename=file.name)
+            
+        return message
 
 class SupportTicketSerializer(serializers.ModelSerializer):
     messages = TicketMessageSerializer(many=True, read_only=True)
