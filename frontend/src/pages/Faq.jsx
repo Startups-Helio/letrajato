@@ -15,6 +15,7 @@ const faqData = [
   { question: "Pergunta 9", answer: "Resposta 9" },
   { question: "Pergunta 10", answer: "Resposta 10" },
   { question: "Pergunta 11", answer: "Resposta 11" },
+  { question: "Pergunta 12", answer: "Resposta 12" },
 ];
 
 function Faq() {
@@ -61,6 +62,15 @@ function Faq() {
                 onClick={() => setVisibleCount((c) => c + INCREMENT)}
               >
                 See More…
+              </button>
+            )}
+
+            {!hasMore && (
+              <button
+                className="see-more"
+                onClick={() => setVisibleCount(INCREMENT)}
+              >
+                Close Questions
               </button>
             )}
           </div>
