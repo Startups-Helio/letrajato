@@ -158,6 +158,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://3.133.118.205:5173",
     "http://ec2-3-133-118-205.us-east-2.compute.amazonaws.com:5173",
     "https://api.letrajato.com.br",
+    "https://letrajato.com.br",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
@@ -166,6 +167,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://3.133.118.205:5173",
     "http://ec2-3-133-118-205.us-east-2.compute.amazonaws.com:5173",
     "https://api.letrajato.com.br",
+    "https://letrajato.com.br",
+
 ]
 CORS_ALLOW_METHODS = [
     "DELETE",
@@ -187,6 +190,9 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
 ]
 CORS_PREFLIGHT_MAX_AGE = 86400
+
+# Allow browsers to see the appropriate headers
+CORS_EXPOSE_HEADERS = ['Content-Disposition']
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com" 

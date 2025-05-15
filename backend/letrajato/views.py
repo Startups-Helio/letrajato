@@ -12,7 +12,7 @@ import requests
 from django.conf import settings
 import threading
 import uuid
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, FileResponse
 import os
 import base64
 import time
@@ -657,4 +657,37 @@ class TicketMessageView(APIView):
             return Response(
                 {"error": "Ticket not found"}, 
                 status=status.HTTP_404_NOT_FOUND
+            )
+
+class DownloadAttachmentView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, attachment_id):
+        try:
+            # Get the attachment
+            attachment = TicketAttachment.objects.get(id=attachment_id)
+            
+            # Check if user has permission to access the ticket
+            ticket = attachment.message.ticket
+            if request.user != ticket.user and not request.user.is_staff:
+                return Response(
+                    {"error": "You don't have permission to download this file"}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            # Serve the file
+            file_path = attachment.file.path
+            response = FileResponse(open(file_path, 'rb'))
+            response['Content-Disposition'] = f'attachment; filename="{attachment.filename}"'
+            return response
+            
+        except TicketAttachment.DoesNotExist:
+            return Response(
+                {"error": "File not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

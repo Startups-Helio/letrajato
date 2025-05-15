@@ -143,11 +143,18 @@ function TicketDetail({ isAdmin = false }) {
       // Set downloading state for this attachment
       setDownloadingAttachments(prev => ({ ...prev, [attachmentId]: true }));
       
-      // Get the file
-      const response = await fetch(fileUrl);
-      const blob = await response.blob();
+      // Extract the file path from the URL - we just need the path after /media/
+      const filePath = fileUrl.includes('/media/') 
+        ? fileUrl.split('/media/')[1] 
+        : fileUrl;
+      
+      // Use your API to proxy the file download to avoid CORS
+      const response = await api.get(`/letrajato/download-attachment/${attachmentId}/`, {
+        responseType: 'blob',
+      });
       
       // Create download link and trigger download
+      const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;

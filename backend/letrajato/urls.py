@@ -13,4 +13,5 @@ urlpatterns = [
     path("tickets/", views.TicketListCreateView.as_view(), name="ticket-list-create"),
     path("tickets/<int:ticket_id>/", views.TicketDetailView.as_view(), name="ticket-detail"),
     path("tickets/<int:ticket_id>/messages/", views.TicketMessageView.as_view(), name="ticket-messages"),
+    path('download-attachment/<int:attachment_id>/', views.DownloadAttachmentView.as_view(), name='download_attachment'),
 ]
