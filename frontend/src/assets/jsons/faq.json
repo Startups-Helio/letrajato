@@ -1,0 +1,11 @@
+[
+  { "question": "Quem somos nos?", "answer": "Resposta 1" },
+  { "question": "O que fazemos?", "answer": "Resposta 2" },
+  { "question": "Como faço para fazer um orçamento", "answer": "Resposta 3" },
+  { "question": "Como faço para comprar maquinas?", "answer": "Resposta 4" },
+  { "question": "Como faço para virar revendedor?", "answer": "Resposta 5" },
+  { "question": "Como entrar em contato com a gente?", "answer": "Resposta 6" },
+  { "question": "Como trocar minha senha?", "answer": "Resposta 7" },
+  { "question": "Como crio minha conta?", "answer": "Resposta 8" },
+  { "question": "Preciso ter cnpj para criar uma conta?", "answer": "Resposta 9" }
+]
