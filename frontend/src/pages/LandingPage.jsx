@@ -71,7 +71,7 @@ function LandingPage() {
               <div className="button-content">
                 <h2>Nossas Máquinas</h2>
                 <p>Conheça nossa linha de equipamentos de alta performance</p>
-                <Link to="https://loja.infinitepay.io/letrajato3d/ugz3594-impressora-3d-lj8080-letrajato" className="button-link">LJ8080</Link>
+                <Link to="/marketplace" className="button-link">LJ8080</Link>
               </div>
             </div>
             <div className="right-button">

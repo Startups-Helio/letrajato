@@ -15,7 +15,8 @@ import Support from './pages/Support';
 import AdminSupport from './pages/AdminSupport';
 import TicketDetail from './components/TicketDetail';
 import Faq from "./pages/Faq"
-
+import Marketplace from "./pages/Marketplace"
+import PrintPage from "./pages/PrintPage"
 function AdminRoute({ children }) {
   const [isAdmin, setIsAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -80,6 +81,9 @@ function App() {
             </ProtectedRoute>
         }
         />
+        <Route path="/produtos/lj12080" element = {<PrintPage />} />
+        <Route path="/produtos/lj8080" element = {<PrintPage />} />
+        <Route path="/marketplace" element = {<Marketplace />} />
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>
         <Route path="/register" element = {<Register />}/>

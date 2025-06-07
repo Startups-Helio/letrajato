@@ -1,0 +1,98 @@
+.mk-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.mk-carousel-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s ease;
+}
+
+.mk-carousel-slide {
+  position: relative;
+  min-width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mk-carousel-indicators {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  z-index: 2;
+}
+
+.mk-carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mk-carousel-indicator.mk-active {
+  background-color: #FF5207;
+  transform: scale(1.2);
+}
+
+.mk-carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.mk-carousel-control:hover {
+  background-color: rgba(255, 82, 7, 0.8);
+}
+
+.mk-carousel-prev {
+  left: 20px;
+}
+
+.mk-carousel-next {
+  right: 20px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .mk-carousel-control {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  .mk-carousel-prev {
+    left: 10px;
+  }
+  
+  .mk-carousel-next {
+    right: 10px;
+  }
+}
