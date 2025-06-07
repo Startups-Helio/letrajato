@@ -589,7 +589,6 @@ class TicketMessageView(APIView):
     def get(self, request, ticket_id):
         try:
             ticket = SupportTicket.objects.get(id=ticket_id)
-            # Check if user owns the ticket or is admin
             if request.user == ticket.user or request.user.is_staff:
                 messages = TicketMessage.objects.filter(ticket=ticket).order_by('created_at')
                 serializer = TicketMessageSerializer(messages, many=True, context={'request': request})
@@ -608,32 +607,27 @@ class TicketMessageView(APIView):
     def post(self, request, ticket_id):
         try:
             ticket = SupportTicket.objects.get(id=ticket_id)
-            # Check if user owns the ticket or is admin
             if request.user == ticket.user or request.user.is_staff:
                 data = request.data.copy()
                 data['ticket'] = ticket.id
                 data['sender'] = request.user.id
                 data['is_from_admin'] = request.user.is_staff
                 
-                # Get files from request
                 files = request.FILES.getlist('uploaded_files')
                 
-                # Validate file count
                 if len(files) > 5:
                     return Response(
                         {"error": "You can only upload up to 5 files per message"}, 
                         status=status.HTTP_400_BAD_REQUEST
                     )
                 
-                # If message is empty but files are present, set a default message
                 if not data.get('message') and files:
-                    data['message'] = "" # Empty string is allowed when files are present
+                    data['message'] = ""
             
                 serializer = TicketMessageSerializer(data=data)
                 if serializer.is_valid():
                     message = serializer.save()
                     
-                    # Create attachment objects for each file
                     for file in files:
                         TicketAttachment.objects.create(
                             message=message,
@@ -641,9 +635,12 @@ class TicketMessageView(APIView):
                             filename=file.name
                         )
                     
-                    # Update ticket status if needed
+
                     if ticket.status == 'closed':
                         ticket.status = 'open'
+                        ticket.save()
+                    elif ticket.status == 'open' and request.user.is_staff:
+                        ticket.status = 'in_progress'
                         ticket.save()
                     
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -664,10 +661,8 @@ class DownloadAttachmentView(APIView):
     
     def get(self, request, attachment_id):
         try:
-            # Get the attachment
             attachment = TicketAttachment.objects.get(id=attachment_id)
             
-            # Check if user has permission to access the ticket
             ticket = attachment.message.ticket
             if request.user != ticket.user and not request.user.is_staff:
                 return Response(
@@ -675,7 +670,6 @@ class DownloadAttachmentView(APIView):
                     status=status.HTTP_403_FORBIDDEN
                 )
             
-            # Serve the file
             file_path = attachment.file.path
             response = FileResponse(open(file_path, 'rb'))
             response['Content-Disposition'] = f'attachment; filename="{attachment.filename}"'
