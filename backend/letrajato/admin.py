@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Revendedor, Note, SupportTicket, TicketMessage, TicketAttachment
+from .models import CustomUser, Revendedor, Note, SupportTicket, TicketMessage, TicketAttachment, Product
 
 
 class RevendedorInline(admin.StackedInline):
@@ -129,7 +129,33 @@ class SupportTicketAdmin(admin.ModelAdmin):
     inlines = [TicketMessageInline]
 
 
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['title', 'brand', 'model', 'category', 'price', 'quantity', 'status', 'created_by', 'created_at']
+    list_filter = ['category', 'status', 'brand', 'created_at']
+    search_fields = ['title', 'description', 'brand', 'model']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('title', 'description', 'category', 'status', 'price', 'quantity')
+        }),
+        ('3D Printer Specifications', {
+            'fields': ('build_volume', 'layer_resolution', 'print_speed', 'nozzle_diameter', 
+                      'filament_diameter', 'supported_materials', 'connectivity'),
+            'classes': ('collapse',)
+        }),
+        ('Product Details', {
+            'fields': ('brand', 'model', 'weight', 'dimensions', 'warranty_period', 'image_url')
+        }),
+        ('Metadata', {
+            'fields': ('created_by', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        })
+    )
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Revendedor, RevendedorAdmin)
 admin.site.register(Note, NoteAdmin)
 admin.site.register(SupportTicket, SupportTicketAdmin)
+admin.site.register(Product, ProductAdmin)

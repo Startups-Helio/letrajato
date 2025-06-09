@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from .models import CustomUser, Revendedor, TicketAttachment
 from rest_framework import serializers
-from .models import Note, SupportTicket, TicketMessage
+from .models import Note, SupportTicket, TicketMessage, Product
 
 class RevendedorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -121,3 +121,26 @@ class SupportTicketSerializer(serializers.ModelSerializer):
     
     def get_username(self, obj):
         return obj.user.username if obj.user else "Unknown"
+
+class ProductSerializer(serializers.ModelSerializer):
+    created_by_username = serializers.SerializerMethodField()
+    is_available = serializers.ReadOnlyField()
+    
+    class Meta:
+        model = Product
+        fields = [
+            'id', 'title', 'description', 'quantity', 'price', 'category', 'status',
+            'build_volume', 'layer_resolution', 'print_speed', 'nozzle_diameter',
+            'filament_diameter', 'supported_materials', 'connectivity',
+            'brand', 'model', 'weight', 'dimensions', 'warranty_period',
+            'image_url', 'created_at', 'updated_at', 'created_by', 'created_by_username',
+            'is_available'
+        ]
+        extra_kwargs = {
+            'created_by': {'read_only': True},
+            'created_at': {'read_only': True},
+            'updated_at': {'read_only': True}
+        }
+    
+    def get_created_by_username(self, obj):
+        return obj.created_by.username if obj.created_by else None

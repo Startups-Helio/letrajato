@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 import api from "../api";
 import AdminTicketsDashboard from './AdminTicketsDashboard';
+import ProductManagement from './ProductManagement';
 import "../styles/AdminDashboard.css";
 
 function AdminDashboard() {
@@ -9,7 +10,7 @@ function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [actionInProgress, setActionInProgress] = useState(false);
     const [expandedUser, setExpandedUser] = useState(null);
-    const [activeTab, setActiveTab] = useState('users'); // 'users' or 'support'
+    const [activeTab, setActiveTab] = useState('users'); // 'users', 'support', or 'products'
     
     useEffect(() => {
         if (activeTab === 'users') {
@@ -174,6 +175,10 @@ function AdminDashboard() {
             return <AdminTicketsDashboard />;
         }
         
+        if (activeTab === 'products') {
+            return <ProductManagement />;
+        }
+        
         // Users tab content
         if (loading) {
             return <div className="loading-container">Carregando...</div>;
@@ -280,6 +285,12 @@ function AdminDashboard() {
                     onClick={() => setActiveTab('support')}
                 >
                     Central de Suporte
+                </button>
+                <button 
+                    className={`tab-button ${activeTab === 'products' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('products')}
+                >
+                    Produtos
                 </button>
             </div>
             

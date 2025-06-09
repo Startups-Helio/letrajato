@@ -3,10 +3,10 @@ from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserSerializer, NoteSerializer, SupportTicketSerializer, TicketMessageSerializer
+from .serializers import UserSerializer, NoteSerializer, SupportTicketSerializer, TicketMessageSerializer, ProductSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import MultiPartParser, FormParser
-from .models import Note, CustomUser, Revendedor, SupportTicket, TicketMessage, TicketAttachment
+from .models import Note, CustomUser, Revendedor, SupportTicket, TicketMessage, TicketAttachment, Product
 from django.core.mail import send_mail, EmailMultiAlternatives
 import requests
 from django.conf import settings
@@ -685,3 +685,94 @@ class DownloadAttachmentView(APIView):
                 {"error": str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class ProductListCreate(generics.ListCreateAPIView):
+    serializer_class = ProductSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        
+        # Filter by category if provided
+        category = self.request.query_params.get('category', None)
+        if category:
+            queryset = queryset.filter(category=category)
+        
+        # Filter by status if provided
+        status = self.request.query_params.get('status', None)
+        if status:
+            queryset = queryset.filter(status=status)
+        
+        # Filter by availability
+        available_only = self.request.query_params.get('available_only', None)
+        if available_only and available_only.lower() == 'true':
+            queryset = queryset.filter(status='available', quantity__gt=0)
+        
+        # Search by title or description
+        search = self.request.query_params.get('search', None)
+        if search:
+            queryset = queryset.filter(
+                models.Q(title__icontains=search) | 
+                models.Q(description__icontains=search) |
+                models.Q(brand__icontains=search) |
+                models.Q(model__icontains=search)
+            )
+        
+        return queryset.order_by('-created_at')
+    
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(created_by=self.request.user)
+        else:
+            print(serializer.errors)
+
+
+class ProductDetail(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
+    
+    def get_queryset(self):
+        return Product.objects.all()
+    
+    def perform_update(self, serializer):
+        # Only allow the creator or admin to update
+        product = self.get_object()
+        if product.created_by == self.request.user or self.request.user.is_staff:
+            serializer.save()
+        else:
+            raise PermissionDenied("You don't have permission to update this product")
+    
+    def perform_destroy(self, instance):
+        # Only allow the creator or admin to delete
+        if instance.created_by == self.request.user or self.request.user.is_staff:
+            instance.delete()
+        else:
+            raise PermissionDenied("You don't have permission to delete this product")
+
+
+class ProductBulkDelete(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        product_ids = request.data.get('product_ids', [])
+        
+        if not product_ids:
+            return Response(
+                {"error": "No product IDs provided"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Only allow admin or product creators to bulk delete
+        if request.user.is_staff:
+            products = Product.objects.filter(id__in=product_ids)
+        else:
+            products = Product.objects.filter(id__in=product_ids, created_by=request.user)
+        
+        deleted_count = products.count()
+        products.delete()
+        
+        return Response(
+            {"message": f"Successfully deleted {deleted_count} products"}, 
+            status=status.HTTP_200_OK
+        )

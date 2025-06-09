@@ -14,4 +14,8 @@ urlpatterns = [
     path("tickets/<int:ticket_id>/", views.TicketDetailView.as_view(), name="ticket-detail"),
     path("tickets/<int:ticket_id>/messages/", views.TicketMessageView.as_view(), name="ticket-messages"),
     path('download-attachment/<int:attachment_id>/', views.DownloadAttachmentView.as_view(), name='download_attachment'),
+    # Product endpoints
+    path("products/", views.ProductListCreate.as_view(), name="product-list-create"),
+    path("products/<int:pk>/", views.ProductDetail.as_view(), name="product-detail"),
+    path("products/bulk-delete/", views.ProductBulkDelete.as_view(), name="product-bulk-delete"),
 ]

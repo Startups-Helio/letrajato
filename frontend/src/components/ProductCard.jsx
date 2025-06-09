@@ -20,7 +20,7 @@ function ProductCard({ id, name, image, description, features, badge, link, inde
             ))}
           </ul>
         )}
-        <Link to={link} className="cs-link">
+        <Link to={`/products/${id}`} className="cs-link">
           Saiba mais &rarr;
         </Link>
       </div>

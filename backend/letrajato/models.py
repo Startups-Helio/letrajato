@@ -96,3 +96,59 @@ class TicketAttachment(models.Model):
         if not self.filename and self.file:
             self.filename = self.file.name.split('/')[-1]
         super().save(*args, **kwargs)
+
+
+class Product(models.Model):
+    CATEGORY_CHOICES = (
+        ('printer', 'Impressora 3D'),
+        ('filament', 'Filamento'),
+        ('accessory', 'Acessório'),
+        ('part', 'Peça de Reposição'),
+    )
+    
+    STATUS_CHOICES = (
+        ('available', 'Disponível'),
+        ('out_of_stock', 'Fora de Estoque'),
+        ('discontinued', 'Descontinuado'),
+    )
+    
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    quantity = models.PositiveIntegerField(default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='printer')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    
+    # 3D Printer specific fields
+    build_volume = models.CharField(max_length=100, blank=True, null=True)  # e.g., "220x220x250mm"
+    layer_resolution = models.CharField(max_length=50, blank=True, null=True)  # e.g., "0.1-0.3mm"
+    print_speed = models.CharField(max_length=50, blank=True, null=True)  # e.g., "150mm/s"
+    nozzle_diameter = models.CharField(max_length=20, blank=True, null=True)  # e.g., "0.4mm"
+    filament_diameter = models.CharField(max_length=20, blank=True, null=True)  # e.g., "1.75mm"
+    supported_materials = models.TextField(blank=True, null=True)  # e.g., "PLA, ABS, PETG"
+    connectivity = models.CharField(max_length=100, blank=True, null=True)  # e.g., "USB, WiFi, SD Card"
+    
+    # General product fields
+    brand = models.CharField(max_length=100, blank=True, null=True)
+    model = models.CharField(max_length=100, blank=True, null=True)
+    weight = models.CharField(max_length=50, blank=True, null=True)  # e.g., "7.5kg"
+    dimensions = models.CharField(max_length=100, blank=True, null=True)  # e.g., "440x410x465mm"
+    warranty_period = models.CharField(max_length=50, blank=True, null=True)  # e.g., "12 months"
+    
+    # Images and media
+    image_url = models.URLField(blank=True, null=True)
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='products')
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.title} - {self.brand} {self.model}"
+    
+    @property
+    def is_available(self):
+        return self.status == 'available' and self.quantity > 0
