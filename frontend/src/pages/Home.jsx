@@ -74,7 +74,6 @@ function Home() {
   return (
     <div className="home-container">
       <NavBar />
-      
       <div className="home-banner">
         <div className="banner-content">
           <h1>
@@ -119,6 +118,15 @@ function Home() {
                 <p>Aguardando verificação da sua conta. Logo você terá acesso a todos os recursos!</p>
                 <Link to="/verification-pending" className="check-status-button">
                   Verificar status
+                </Link>
+              </div>
+            )}
+            
+            {!userData?.is_revendedor && !userData?.is_staff && (
+              <div className="revendedor-application">
+                <p>Quer se tornar um revendedor Letrajato?</p>
+                <Link to="/apply-revendedor" className="apply-revendedor-button">
+                  Solicitar Cadastro como Revendedor
                 </Link>
               </div>
             )}

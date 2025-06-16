@@ -18,6 +18,8 @@ import Faq from "./pages/Faq"
 import Marketplace from "./pages/Marketplace"
 import PrintPage from "./pages/PrintPage"
 import ProductCard from "./components/ProductCard"
+import RevendedorApplication from "./pages/RevendedorApplication";
+
 function AdminRoute({ children }) {
   const [isAdmin, setIsAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -124,6 +126,11 @@ function App() {
             </AdminRoute>
           } 
         />
+        <Route path="/apply-revendedor" element={
+            <ProtectedRoute>
+              <RevendedorApplication />
+            </ProtectedRoute>
+        } />
         <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </>

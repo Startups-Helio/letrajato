@@ -350,6 +350,35 @@
   text-decoration: underline;
 }
 
+/* Revendedor application section */
+.revendedor-application {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.revendedor-application p {
+  margin-bottom: 10px;
+  color: #555;
+}
+
+.apply-revendedor-button {
+  display: inline-block;
+  padding: 10px 16px;
+  background-color: #FF5207;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.apply-revendedor-button:hover {
+  background-color: #e64a00;
+  text-decoration: none;
+  color: white;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .home-banner {

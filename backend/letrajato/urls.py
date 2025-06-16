@@ -18,4 +18,5 @@ urlpatterns = [
     path("products/", views.ProductListCreate.as_view(), name="product-list-create"),
     path("products/<int:pk>/", views.ProductDetail.as_view(), name="product-detail"),
     path("products/bulk-delete/", views.ProductBulkDelete.as_view(), name="product-bulk-delete"),
+    path('apply-revendedor/', views.ApplyForRevendedorView.as_view(), name='apply-revendedor'),
 ]

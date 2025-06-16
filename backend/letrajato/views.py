@@ -815,3 +815,159 @@ class ProductBulkDelete(APIView):
             {"message": f"Successfully deleted {deleted_count} products"}, 
             status=status.HTTP_200_OK
         )
+
+class ApplyForRevendedorView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        # Check if user is already a revendedor
+        if hasattr(request.user, 'revendedor'):
+            return Response(
+                {"error": "Você já é um revendedor ou já possui uma solicitação pendente."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Get data from request
+        cnpj = request.data.get('cnpj')
+        nome_empresa = request.data.get('nome_empresa')
+        consulta_data = request.data.get('consulta_data')
+        
+        if not cnpj or not nome_empresa:
+            return Response(
+                {"error": "CNPJ e nome da empresa são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Create new revendedor record
+        try:
+            revendedor = Revendedor.objects.create(
+                user=request.user,
+                cnpj=cnpj,
+                nome_empresa=nome_empresa,
+                verificado=False,
+                cnpj_data=consulta_data
+            )
+            
+            # Send notification emails
+            threading.Thread(
+                target=self._send_revendedor_application_emails,
+                args=(request.user.email, request.user.username, nome_empresa, cnpj, consulta_data)
+            ).start()
+            
+            return Response(
+                {"message": "Solicitação enviada com sucesso! Aguarde a aprovação."},
+                status=status.HTTP_201_CREATED
+            )
+            
+        except Exception as e:
+            return Response(
+                {"error": f"Ocorreu um erro ao processar sua solicitação: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+    def _send_revendedor_application_emails(self, email, username, empresa, cnpj, consulta_data):
+        try:
+            user = CustomUser.objects.get(email=email)
+            revendedor = user.revendedor
+            verification_url = f"https://letrajato.com.br/admin"
+
+            cliente_subject = "Solicitação de Cadastro como Revendedor"
+            cliente_plain_message = f"Olá {username}, recebemos sua solicitação para se tornar um revendedor na Letrajato. Estamos analisando seus dados e em breve entraremos em contato."
+
+            admin_subject = "Nova solicitação de revendedor"
+            admin_plain_message = f"Um usuário existente ({username}) solicitou tornar-se revendedor para a empresa {empresa}. O CNPJ fornecido é {cnpj}."
+            
+            cnpj_found = consulta_data and not consulta_data.get('error') and consulta_data.get('nome')
+
+            cliente_html_message = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #FF5207;">Solicitação Recebida!</h2>
+                            <p>Olá <strong>{username}</strong>,</p>
+                            <p>Recebemos sua solicitação para se tornar um revendedor da Letrajato para <strong>{empresa}</strong>.</p>
+                            <p>Nossa equipe está analisando suas informações e entraremos em contato em breve.</p>
+                            <p>Enquanto isso, você pode continuar usando a plataforma normalmente como usuário.</p>
+                            <p>Atenciosamente,<br>Equipe Letrajato</p>
+                        </div>
+                    </body>
+                </html>
+                """
+            
+            if cnpj_found:
+                atv_principais = consulta_data.get('atividade_principal', [])
+                atividade_principal = atv_principais[0]['text'] if atv_principais else 'N/A'
+
+                atc_secundarias = consulta_data.get('atividades_secundarias', [])
+                sec = ""
+                for atc in atc_secundarias:
+                    sec += f"<li><strong>{atc['text']}</strong></li>"
+                
+                admin_html_message = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #FF5207;">Nova solicitação de cadastro de revendedor!</h2>
+                            <p>Olá <strong>Octávio</strong>,</p>
+                            <p>Um usuário existente ({username}) solicitou tornar-se revendedor para a empresa {empresa}.</p>
+                            <p>Dados da empresa:</p>
+                            <ul>
+                                <li><strong>CNPJ:</strong> {consulta_data.get('cnpj', 'N/A')}</li>
+                                <li><strong>Nome Registrado:</strong> {consulta_data.get('nome', 'N/A')}</li>
+                                <li><strong>Data de abertura:</strong> {consulta_data.get('abertura', 'N/A')}</li>
+                                <li><strong>Situação:</strong> {consulta_data.get('situacao', 'N/A')}</li>
+                                <li><strong>UF:</strong> {consulta_data.get('uf', 'N/A')}</li>
+                                <li><strong>Municipio:</strong> {consulta_data.get('municipio', 'N/A')}</li>
+                                <li><strong>Atividade Principal:</strong> {atividade_principal}</li>
+                                <li><strong>Atividades Secundárias:</strong></li>
+                                <ul>
+                                    {sec}
+                                </ul>
+                            </ul>
+                            <p>Entre no Admin Dashboard para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
+                            <p>Atenciosamente,<br>Equipe Letrajato</p>
+                        </div>
+                    </body>
+                </html>
+                """
+            else:
+                cnpj_formatado = cnpj[:2] + '.' + cnpj[2:5] + '.' + cnpj[5:8] + '/' + cnpj[8:12] + '-' + cnpj[12:]
+
+                admin_html_message = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #FF5207;">Nova solicitação de cadastro de revendedor!</h2>
+                            <p>Olá <strong>Octávio</strong>,</p>
+                            <p>Um usuário existente ({username}) solicitou tornar-se revendedor para a empresa {empresa}.</p>
+                            <p>O CNPJ fornecido no cadastro não foi encontrado no sistema, portanto a verificação deve ser manual:</p>
+                            <ul>
+                                <li><strong>CNPJ:</strong> {cnpj_formatado}</li>
+                            </ul>
+                            <p>Entre no Admin Dashboard para verificar o cadastro: <a href="{verification_url}">Verificar Usuário</a></p>
+                            <p>Atenciosamente,<br>Equipe Letrajato</p>
+                        </div>
+                    </body>
+                </html>
+                """
+            
+            email_message = EmailMultiAlternatives(
+                subject=cliente_subject,
+                body=cliente_plain_message,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[email]
+            )
+            email_message.attach_alternative(cliente_html_message, "text/html")
+            email_message.send(fail_silently=True)
+
+            email_message = EmailMultiAlternatives(
+                subject=admin_subject,
+                body=admin_plain_message,
+                from_email=settings.EMAIL_HOST_USER,
+                to=["rafaeltolini01@gmail.com"]
+            )
+            email_message.attach_alternative(admin_html_message, "text/html")
+            email_message.send(fail_silently=True)
+
+        except Exception as e:
+            print(f"Failed to send revendedor application emails: {str(e)}")
