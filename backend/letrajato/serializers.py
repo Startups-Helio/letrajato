@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
-from .models import CustomUser, Revendedor, TicketAttachment
+from .models import CustomUser, Revendedor
 from rest_framework import serializers
-from .models import Note, SupportTicket, TicketMessage, Product
+from .models import Note, SupportTicket, TicketMessage, TicketAttachment, Product
 
 class RevendedorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,8 +10,8 @@ class RevendedorSerializer(serializers.ModelSerializer):
         read_only_fields = ['verificado']
 
 class UserSerializer(serializers.ModelSerializer):
-    cnpj = serializers.CharField(write_only=True, required=True)
-    nome_empresa = serializers.CharField(write_only=True, required=True)
+    cnpj = serializers.CharField(write_only=True, required=False)
+    nome_empresa = serializers.CharField(write_only=True, required=False)
     consulta_data = serializers.JSONField(write_only=True, required=False)
     is_revendedor = serializers.BooleanField(read_only=True, source='revendedor', required=False)
 
@@ -26,8 +26,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         consulta_data = validated_data.pop('consulta_data', None)
-        cnpj = validated_data.pop('cnpj')
-        nome_empresa = validated_data.pop('nome_empresa')
+        cnpj = validated_data.pop('cnpj', None)
+        nome_empresa = validated_data.pop('nome_empresa', None)
 
         user = CustomUser.objects.create_user(
             email=validated_data['email'],
@@ -35,16 +35,17 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
 
-        Revendedor.objects.create(
-            user=user,
-            cnpj=cnpj,
-            nome_empresa=nome_empresa,
-            verificado=False,
-            cnpj_data=consulta_data 
-        )
-
-        if consulta_data:
-            self.context['consulta_data'] = consulta_data
+        if cnpj and nome_empresa:
+            Revendedor.objects.create(
+                user=user,
+                cnpj=cnpj,
+                nome_empresa=nome_empresa,
+                verificado=False,
+                cnpj_data=consulta_data
+            )
+            
+            if consulta_data:
+                self.context['consulta_data'] = consulta_data
 
         return user
 
@@ -86,7 +87,6 @@ class TicketMessageSerializer(serializers.ModelSerializer):
         return obj.sender.username
 
     def validate(self, data):
-        # Allow empty message if files are being uploaded
         has_files = 'uploaded_files' in self.initial_data and self.initial_data.getlist('uploaded_files')
         if not data.get('message') and not has_files:
             raise serializers.ValidationError({"message": "Either message or files must be provided."})

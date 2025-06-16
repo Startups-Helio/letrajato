@@ -13,6 +13,7 @@ from django.conf import settings
 import threading
 import uuid
 from django.http import Http404, HttpResponse, FileResponse
+from django.core.exceptions import PermissionDenied
 import os
 import base64
 import time
@@ -51,22 +52,29 @@ class CreateUserView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        
         consulta_data = serializer.context.get('consulta_data', {})
         
-        threading.Thread(
-            target=self._send_welcome_email,
-            args=(user.email, user.username, user.revendedor.nome_empresa, user.revendedor.cnpj, consulta_data)
-        ).start()
+        is_revendedor = hasattr(user, 'revendedor')
+        
+        if is_revendedor:
+            threading.Thread(
+                target=self._send_revendedor_welcome_email,
+                args=(user.email, user.username, user.revendedor.nome_empresa, user.revendedor.cnpj, consulta_data)
+            ).start()
+        else:
+            threading.Thread(
+                target=self._send_regular_welcome_email,
+                args=(user.email, user.username)
+            ).start()
     
-    def _send_welcome_email(self, email, username, empresa, cnpj, consulta_data):
+    def _send_revendedor_welcome_email(self, email, username, empresa, cnpj, consulta_data):
         try:
             user = CustomUser.objects.get(email=email)
             revendedor = user.revendedor
             verification_url = f"https://letrajato.com.br/admin"
 
             cliente_subject = "Bem-vindo à Letrajato"
-            cliente_plain_message = f"Bem-vindo à Letrajato, {username}! Seu registro foi efetuado com sucesso."
+            cliente_plain_message = f"Bem-vindo à Letrajato, {username}! Seu registro como revendedor foi efetuado com sucesso."
 
             admin_subject = "Nova solicitação de cadastro"
             admin_plain_message = f"Uma nova solicitação de cadastro foi realizada por {username} para a empresa {empresa}. O CNPJ fornecido é {cnpj}."
@@ -163,7 +171,7 @@ class CreateUserView(generics.CreateAPIView):
                 subject=admin_subject,
                 body=admin_plain_message,
                 from_email=settings.EMAIL_HOST_USER,
-                to=["letrajato@gmail.com"]
+                to=["rafaeltolini01@gmail.com"]
             )
             email_message.attach_alternative(admin_html_message, "text/html")
             email_message.send(fail_silently=True)
@@ -171,6 +179,37 @@ class CreateUserView(generics.CreateAPIView):
 
         except Exception as e:
             print(f"Failed to send welcome email: {str(e)}")
+    
+    def _send_regular_welcome_email(self, email, username):
+        try:
+            subject = "Bem-vindo à Letrajato"
+            plain_message = f"Bem-vindo à Letrajato, {username}! Seu registro foi efetuado com sucesso."
+            
+            html_message = f"""
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                            <h2 style="color: #FF5207;">Bem-vindo à Letrajato!</h2>
+                            <p>Olá <strong>{username}</strong>,</p>
+                            <p>Agradecemos por se cadastrar em nosso sistema!</p>
+                            <p>Você já pode fazer login utilizando as informações cadastradas.</p>
+                            <p>Atenciosamente,<br>Equipe Letrajato</p>
+                        </div>
+                    </body>
+                </html>
+                """
+            
+            email_message = EmailMultiAlternatives(
+                subject=subject,
+                body=plain_message,
+                from_email=settings.EMAIL_HOST_USER,
+                to=[email]
+            )
+            email_message.attach_alternative(html_message, "text/html")
+            email_message.send(fail_silently=True)
+            
+        except Exception as e:
+            print(f"Failed to send regular welcome email: {str(e)}")
 
 
 class CNPJProxyView(APIView):
