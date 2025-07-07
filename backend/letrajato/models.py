@@ -116,8 +116,8 @@ class Product(models.Model):
     description = models.TextField()
     quantity = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='printer')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='Impressora 3D')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Disponível')
     
     # 3D Printer specific fields
     build_volume = models.CharField(max_length=100, blank=True, null=True)  # e.g., "220x220x250mm"
@@ -136,7 +136,7 @@ class Product(models.Model):
     warranty_period = models.CharField(max_length=50, blank=True, null=True)  # e.g., "12 months"
     
     # Images and media
-    image_url = models.URLField(blank=True, null=True)
+    image = models.ImageField(upload_to='Letrajato_files/', blank=True, null=True)
     
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)

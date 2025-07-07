@@ -58,9 +58,26 @@ function ProductManagement() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let newFormData = {
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    };
+    if (name === 'quantity') {
+      const qty = parseInt(value, 10);
+      if (qty === 0) {
+        newFormData.status = 'out_of_stock';
+      } else if (qty > 0) {
+        newFormData.status = 'available';
+      }
+    }
+    setFormData(newFormData);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      image: file
     }));
   };
 
@@ -68,16 +85,30 @@ function ProductManagement() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
+  
     try {
+      const data = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          // Only append file if it's a File object
+          if (key === 'image' && value instanceof File) {
+            data.append(key, value);
+          } else if (key !== 'image') {
+            data.append(key, value);
+          }
+        }
+      });
       if (editingProduct) {
-        await api.put(`/letrajato/products/${editingProduct.id}/`, formData);
+        await api.put(`/letrajato/products/${editingProduct.id}/`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setSuccess('Produto atualizado com sucesso!');
       } else {
-        await api.post('/letrajato/products/', formData);
+        await api.post('/letrajato/products/', data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
         setSuccess('Produto criado com sucesso!');
       }
-      
       resetForm();
       loadProducts();
     } catch (err) {
@@ -240,13 +271,13 @@ function ProductManagement() {
             </div>
 
             <div className="form-group">
-              <label>Altura da Camada</label>
+              <label>Dimensoes</label>
               <input
                 type="text"
-                name="layer_height"
-                value={formData.layer_height}
+                name="dimensions"
+                value={formData.dimensions}
                 onChange={handleInputChange}
-                placeholder="ex: 0.1-0.3mm"
+                placeholder="ex: 120x80x20cm"
               />
             </div>
 
@@ -273,17 +304,6 @@ function ProductManagement() {
             </div>
 
             <div className="form-group">
-              <label>URL da Imagem</label>
-              <input
-                type="url"
-                name="image_url"
-                value={formData.image_url}
-                onChange={handleInputChange}
-                placeholder="https://exemplo.com/imagem.jpg"
-              />
-            </div>
-
-            <div className="form-group">
               <label>Peso</label>
               <input
                 type="text"
@@ -291,6 +311,15 @@ function ProductManagement() {
                 value={formData.weight}
                 onChange={handleInputChange}
                 placeholder="ex: 8.5kg"
+              />
+            </div>
+            <div className="form-group">
+              <label>Imagem</label>
+              <input
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleFileChange}
               />
             </div>
           </div>

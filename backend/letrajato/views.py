@@ -1,3 +1,4 @@
+from pickle import FALSE
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics, status
@@ -728,7 +729,7 @@ class DownloadAttachmentView(APIView):
 
 class ProductListCreate(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     
     def get_queryset(self):
         queryset = Product.objects.all()

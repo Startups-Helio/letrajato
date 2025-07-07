@@ -133,7 +133,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'build_volume', 'layer_resolution', 'print_speed', 'nozzle_diameter',
             'filament_diameter', 'supported_materials', 'connectivity',
             'brand', 'model', 'weight', 'dimensions', 'warranty_period',
-            'image_url', 'created_at', 'updated_at', 'created_by', 'created_by_username',
+            'image', 'created_at', 'updated_at', 'created_by', 'created_by_username',
             'is_available'
         ]
         extra_kwargs = {

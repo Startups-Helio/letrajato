@@ -1,0 +1,90 @@
+.banner {
+  background: #111;
+  overflow: hidden;
+  min-height: 800px;
+  min-width: 100%;
+  position: relative;
+}
+
+.banner-content {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.banner-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5%;
+}
+
+.banner-right {
+  flex: 1;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.banner-dots {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.banner-dot {
+  position: absolute;
+  border-radius: 50%;
+  background: #000000;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.banner-title{
+    position: relative;
+    z-index: 2;
+    font-size: 100px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.1em;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    padding: 5%;
+    -webkit-text-stroke: 2px #FF5207;
+}
+.banner-description{
+    position: relative;
+    z-index: 2;
+    font-size: 30px;
+    font-weight: 400;
+    color: #FF5207;
+    line-height: 1em;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    padding: 5%;
+    padding-top: 34px;
+}
+
+
+.button-link {
+    position: relative;
+    z-index: 2;
+    line-height: 1.8em;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+    padding-left: 5%;
+    padding-top: 5%;
+    color: #fff;
+    -webkit-text-stroke: 2px #FF5207;
+}

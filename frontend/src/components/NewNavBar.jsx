@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
 import api from "../api";
-import "../styles/NavBar.css";
+import "../styles/NewNavBar.css";
 
-function NavBar() {
+function NewNavBar() {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -49,26 +49,29 @@ function NavBar() {
       <div className="navbar-logo">
         <Link to="/">Letrajato</Link>
       </div>
-      <div className="navbar-links">
+      <ul className="navbar-menu">
+        <Link className="navbar-item" to="/marketplace">Produtos</Link>
+        <li className="navbar-item">FAQs</li>
+        <li className="navbar-item">Serviços</li>
+      </ul>
+      <div className="navbar-actions">
         <Link to="/home" className="nav-link">Início</Link>
-        {/*<Link to="/faq" className="nav-link admin-link">FAQ</Link>*/}
         {isAuthenticated ? (
           <>
             {(isRevendedor || isAdmin) && (
-              <Link to="/orcamento" className="nav-link">Orçamento</Link>
+              <Link to="/orcamento" className="navbar-buy">Orçamento</Link>
             )}
             {(!isAdmin) && (
-              <Link to="/support" className="nav-link">Suporte</Link>
+              <Link to="/support" className="navbar-buy">Suporte</Link>
             )}
             {isAdmin && (
-              <Link to="/admin" className="nav-link admin-link">Admin Dashboard</Link>
+              <Link to="/admin" className="navbar-buy">Admin Dashboard</Link>
             )}
-            <Link onClick={handleLogout} className="nav-link">Sair</Link>
+            <Link className="navbar-buy" onClick={handleLogout}>Sair</Link>
           </>
         ) : (
           <>
-            <Link to="/login" className="nav-link">Entrar</Link>
-            <Link to="/register" className="nav-link">Registrar</Link>
+            <Link to="/login" className="navbar-buy">Entrar</Link>
           </>
         )}
       </div>
@@ -76,4 +79,4 @@ function NavBar() {
   );
 }
 
-export default NavBar;
+export default NewNavBar;
