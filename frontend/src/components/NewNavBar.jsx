@@ -51,8 +51,8 @@ function NewNavBar() {
       </div>
       <ul className="navbar-menu">
         <Link className="navbar-item" to="/marketplace">Produtos</Link>
-        <li className="navbar-item">FAQs</li>
-        <li className="navbar-item">Serviços</li>
+        <Link className="navbar-item" to="/suporte">FAQs</Link>
+        <Link className="navbar-item" to="/sobre">Sobre</Link>
       </ul>
       <div className="navbar-actions">
         <Link to="/home" className="nav-link">Início</Link>

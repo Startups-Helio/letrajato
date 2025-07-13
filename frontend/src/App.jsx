@@ -19,6 +19,7 @@ import Marketplace from "./pages/Marketplace"
 import PrintPage from "./pages/PrintPage"
 import ProductCard from "./components/ProductCard"
 import RevendedorApplication from "./pages/RevendedorApplication";
+import Sobre from "./pages/Sobre"
 
 function AdminRoute({ children }) {
   const [isAdmin, setIsAdmin] = useState(null);
@@ -84,6 +85,7 @@ function App() {
             </ProtectedRoute>
         }
         />
+        <Route path="/sobre" element = {<Sobre />} />
         <Route path="/marketplace" element = {<Marketplace />} />
         <Route path="/login" element = {<Login />}/>
         <Route path="/logout" element = {<Logout />}/>

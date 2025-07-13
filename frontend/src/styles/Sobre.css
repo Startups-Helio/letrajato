@@ -1,0 +1,103 @@
+.sobre-bg {
+  background: linear-gradient(135deg, #f0f4fa 0%, #e6ecf7 100%);
+  min-height: 100vh;
+}
+.sobre-container {
+  max-width: 700px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  padding: 40px 32px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.sobre-title {
+  font-size: 2.5rem;
+  color: #1a237e;
+  margin-bottom: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+.sobre-desc {
+  color: #444;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  text-align: center;
+}
+.sobre-highlight {
+  color: #1976d2;
+  font-weight: 600;
+}
+.sobre-diferenciais {
+  margin: 18px 0 10px 0;
+}
+.sobre-diferenciais h3 {
+  color: #1976d2;
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.sobre-diferenciais ul {
+  list-style: disc inside;
+  color: #333;
+  padding-left: 18px;
+}
+.sobre-diferenciais li {
+  margin-bottom: 5px;
+}
+.sobre-social {
+  margin: 18px 0 0 0;
+  text-align: center;
+}
+.sobre-social h4 {
+  color: #1a237e;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+}
+.social-icon {
+  color: #fff;
+  background: #1976d2;
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.social-icon:hover {
+  background: #0d47a1;
+}
+.sobre-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 24px;
+}
+.sobre-btn {
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.07);
+}
+.sobre-btn-produtos {
+  background: #1976d2;
+  color: #fff;
+}
+.sobre-btn-produtos:hover {
+  background: #0d47a1;
+}
+.sobre-btn-contato {
+  background: #43a047;
+  color: #fff;
+}
+.sobre-btn-contato:hover {
+  background: #2e7031;
+}

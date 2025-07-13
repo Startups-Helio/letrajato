@@ -39,12 +39,12 @@ function LandingPage() {
   backgroundImage: '/src/assets/image5.jpeg',
   content: (
     <div className="carousel-slide-content">
-      <span className="carousel-promo">Promoção imperdível</span>
-      <h1 className="carousel-title">Letrajato A1 mini</h1>
-      <p className="carousel-subtitle">O melhor de todos os tempos em impressoras 3D de nível básico</p>
+      <span className="carousel-promo">Lançamento</span>
+      <h1 className="carousel-title">Letrajato LJ V4</h1>
+      <p className="carousel-subtitle">A impressora mais rápida para comunicação visual do Brasil!</p>
       <div className="carousel-buttons">
-        <Link className="carousel-buy-now" to="/products/1">Comprar agora</Link>
-        <button className="carousel-learn-more">Saiba mais</button>
+        <button className="carousel-learn-more">Eu quero!</button>
+        <Link className="carousel-buy-now" to="/products/11">Saiba mais</Link>
       </div>
     </div>
   )
@@ -53,11 +53,10 @@ function LandingPage() {
   backgroundImage: '/src/assets/image3.jpeg',
   content: (
     <div className="carousel-slide-content">
-      <span className="carousel-promo">Promoção imperdível</span>
-      <h1 className="carousel-title">Letrajato A1 mini</h1>
-      <p className="carousel-subtitle">O melhor de todos os tempos em impressoras 3D de nível básico</p>
+      <span className="carousel-promo">Evento</span>
+      <h1 className="carousel-title">Letrajato na FuturePrint!</h1>
+      <p className="carousel-subtitle">Nos encontre eno maior evento de comunicação visual do Brasil!</p>
       <div className="carousel-buttons">
-        <button className="carousel-buy-now">Comprar agora</button>
         <button className="carousel-learn-more">Saiba mais</button>
       </div>
     </div>
