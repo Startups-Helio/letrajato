@@ -2,21 +2,7 @@ import React, { useState } from "react";
 import "../styles/Faq.css";
 import NavBar from "../components/NavBar";
 import { Link } from "react-router-dom";
-
-const faqData = [
-  { question: "Pergunta 1", answer: "Resposta 1" },
-  { question: "Pergunta 2", answer: "Resposta 2" },
-  { question: "Pergunta 3", answer: "Resposta 3" },
-  { question: "Pergunta 4", answer: "Resposta 4" },
-  { question: "Pergunta 5", answer: "Resposta 5" },
-  { question: "Pergunta 6", answer: "Resposta 6" },
-  { question: "Pergunta 7", answer: "Resposta 7" },
-  { question: "Pergunta 8", answer: "Resposta 8" },
-  { question: "Pergunta 9", answer: "Resposta 9" },
-  { question: "Pergunta 10", answer: "Resposta 10" },
-  { question: "Pergunta 11", answer: "Resposta 11" },
-  { question: "Pergunta 12", answer: "Resposta 12" },
-];
+import faqData from "../assets/jsons/faq.json";
 
 function Faq() {
   const INCREMENT = 4;
