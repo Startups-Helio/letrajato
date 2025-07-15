@@ -36,7 +36,7 @@ function LandingPage() {
   // Array de features para facilitar a manutenção
   const features = [
     {
-  backgroundImage: '/src/assets/image5.jpeg',
+  backgroundImage: 'public/image5.jpeg',
   content: (
     <div className="carousel-slide-content">
       <span className="carousel-promo">Lançamento</span>
@@ -50,7 +50,7 @@ function LandingPage() {
   )
 },
   {
-  backgroundImage: '/src/assets/Stand.jpg',
+  backgroundImage: '/public/Stand.jpg',
   content: (
     <div className="carousel-slide-content">
       <span className="carousel-promo">Evento</span>
