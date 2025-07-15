@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import image from '../assets/image5.jpeg'
 
 function ProductCard({ id, name, image, description, features, badge, link, index }) {
   return (
