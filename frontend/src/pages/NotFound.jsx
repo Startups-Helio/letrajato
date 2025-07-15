@@ -1,4 +1,4 @@
-import NavBar from '../components/NavBar';
+import NavBar from '../components/NewNavBar';
 import "../styles/NotFound.css";
 import React from 'react';
 

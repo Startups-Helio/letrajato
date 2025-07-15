@@ -5,41 +5,37 @@ import { Link } from "react-router-dom";
 const cards = [
   {
     title: "Impressoras 3D",
-    subtitle: "Ferramentas poderosas ",
+    subtitle: "Veja nossas impressoras 3D profissionais",
     links: [
-      { label: "Comprar agora", to: "/produtos/impressoras" },
-      { label: "Comparar tudo", to: "/produtos/impressoras/comparar" }
+      { label: "Loja", to: "/marketplace" }
     ],
-    image: "/images/card-impressora.jpg",
+    image: "/src/assets/printer_icon.png",
     alt: "Impressora 3D profissional",
     soon: false
   },
   {
     title: "Filamentos",
     subtitle: "Materiais de impressão 3D de alta qualidade",
-    links: [
-      { label: "Comprar agora", to: "/produtos/filamentos" },
-      { label: "Explorar", to: "/produtos/filamentos/explorar" }
-    ],
-    image: "/images/card-filamento.jpg",
+    links: [],
+    image: "/src/assets/filment_icon.png",
     alt: "Bobinas de filamento coloridas",
-    soon: false
+    soon: true
   },
   {
-    title: "MakerWorld",
-    subtitle: "Descarregar modelos premium",
+    title: "Suporte Personalizado",
+    subtitle: "Contato direto com nossa equipe de suporte",
     links: [
-      { label: "Saiba mais", to: "/makerworld" }
+      { label: "Apenas para compradores", to: "/" }
     ],
-    image: "/images/card-makerworld.jpg",
+    image: "/src/assets/suport_icon.png",
     alt: "Coleção de objetos impressos e smartphone",
     soon: false
   },
   {
     title: "Serviços",
-    subtitle: "Orçamento e produção de letras exclusiva para revendedores!",
+    subtitle: "Orçamento e produção de letras exclusivas",
     links: [],
-    image: "/images/card-criadores.jpg",
+    image: "/src/assets/service_icon.png",
     alt: "Mouse, componentes eletrônicos, acessórios",
     soon: true
   }

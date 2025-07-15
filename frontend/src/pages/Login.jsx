@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import NavBar from '../components/NavBar';
+import NavBar from '../components/NewNavBar';
 import Form from '../components/Form';
 
 function Login() {

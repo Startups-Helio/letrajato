@@ -1,5 +1,5 @@
 import React from 'react';
-import NavBar from '../components/NavBar';
+import NavBar from '../components/NewNavBar';
 import AdminDashboard from '../components/AdminDashboard';
 
 function Admin() {

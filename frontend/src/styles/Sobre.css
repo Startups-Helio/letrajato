@@ -1,103 +1,119 @@
-.sobre-bg {
-  background: linear-gradient(135deg, #f0f4fa 0%, #e6ecf7 100%);
-  min-height: 100vh;
-}
 .sobre-container {
-  max-width: 700px;
-  margin: 40px auto;
-  background: #fff;
+  max-width: 900px;
+  margin: 3rem auto 2rem auto;
+  padding: 2.5rem 2rem;
+  background: #111;
   border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
-  padding: 40px 32px 32px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  color: #fff;
+  font-family: 'Arial', sans-serif;
 }
+
 .sobre-title {
-  font-size: 2.5rem;
-  color: #1a237e;
-  margin-bottom: 10px;
-  font-weight: 700;
-  text-align: center;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #FF5207;
+  margin-bottom: 1.2rem;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px rgba(255,82,7,0.08);
 }
-.sobre-desc {
-  color: #444;
-  font-size: 1.15rem;
+
+.sobre-description {
+  font-size: 1.25rem;
+  color: #fff;
+  margin-bottom: 2.2rem;
   line-height: 1.7;
-  text-align: center;
+  opacity: 0.95;
 }
-.sobre-highlight {
-  color: #1976d2;
-  font-weight: 600;
-}
+
 .sobre-diferenciais {
-  margin: 18px 0 10px 0;
+  background: #181818;
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 2px 12px rgba(255,82,7,0.05);
 }
 .sobre-diferenciais h3 {
-  color: #1976d2;
-  font-size: 1.2rem;
-  margin-bottom: 8px;
+  color: #FF5207;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
 }
 .sobre-diferenciais ul {
   list-style: disc inside;
-  color: #333;
-  padding-left: 18px;
+  color: #fff;
+  font-size: 1.08rem;
+  margin-left: 1rem;
+  padding-left: 0;
 }
 .sobre-diferenciais li {
-  margin-bottom: 5px;
+  margin-bottom: 0.7rem;
+  line-height: 1.6;
 }
+
 .sobre-social {
-  margin: 18px 0 0 0;
-  text-align: center;
-}
-.sobre-social h4 {
-  color: #1a237e;
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-}
-.social-links {
   display: flex;
-  justify-content: center;
-  gap: 18px;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
-.social-icon {
-  color: #fff;
-  background: #1976d2;
-  border-radius: 50px;
-  padding: 8px 18px;
-  font-weight: 500;
+.sobre-social a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #FF5207;
+  width: 44px;
+  height: 44px;
+  justify-content: left;
+  font-size: 1.5rem;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
   text-decoration: none;
-  transition: background 0.2s;
 }
-.social-icon:hover {
-  background: #0d47a1;
+.sobre-social a:hover {
+  transform: translateY(-3px) scale(1.08);
 }
+
 .sobre-actions {
   display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 24px;
+  gap: 1.2rem;
+  margin-top: 2rem;
 }
 .sobre-btn {
-  padding: 12px 28px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
+  background: #FF5207;
+  color: #fff;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.8rem 2.2rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
   text-decoration: none;
-  transition: background 0.2s;
-  box-shadow: 0 2px 8px rgba(25,118,210,0.07);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(255,82,7,0.08);
 }
-.sobre-btn-produtos {
-  background: #1976d2;
-  color: #fff;
+.sobre-btn:hover {
+  background: #fff;
+  color: #FF5207;
+  box-shadow: 0 4px 16px rgba(255,82,7,0.15);
 }
-.sobre-btn-produtos:hover {
-  background: #0d47a1;
-}
-.sobre-btn-contato {
-  background: #43a047;
-  color: #fff;
-}
-.sobre-btn-contato:hover {
-  background: #2e7031;
+
+@media (max-width: 700px) {
+  .sobre-container {
+    padding: 1.2rem 0.5rem;
+  }
+  .sobre-title {
+    font-size: 2rem;
+  }
+  .sobre-description {
+    font-size: 1.05rem;
+  }
+  .sobre-diferenciais {
+    padding: 1rem 0.7rem;
+  }
+  .sobre-actions {
+    flex-direction: column;
+    gap: 0.7rem;
+    align-items: stretch;
+  }
+  .sobre-social {
+    gap: 0.7rem;
+  }
 }

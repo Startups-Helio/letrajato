@@ -107,6 +107,14 @@
   margin-left: 5vw;
   max-width: 600px;
   z-index: 2;
+  
+  background: rgba(8, 8, 8, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 1rem;
 }
 .carousel-promo {
   color: #FF5207;
@@ -140,6 +148,7 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s;
+  text-decoration: none;
 }
 .carousel-buy-now:hover {
   background: #FF5207;
@@ -155,6 +164,7 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  text-decoration: none;
 }
 .carousel-learn-more:hover {
   background: #FF5207;

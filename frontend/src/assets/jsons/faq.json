@@ -1,17 +1,8 @@
 [
-  { "question": "Quem somos nos?", "answer": "Resposta 1" },
-  { "question": "O que fazemos?", "answer": "Resposta 2" },
-  { "question": "Como faço para fazer um orçamento", "answer": "Resposta 3" },
-  { "question": "Como faço para comprar maquinas?", "answer": "Resposta 4" },
-  { "question": "Como faço para virar revendedor?", "answer": "Resposta 5" },
-  { "question": "Como entrar em contato com a gente?", "answer": "Resposta 6" },
-  { "question": "Como trocar minha senha?", "answer": "Resposta 7" },
-  { "question": "Como crio minha conta?", "answer": "Resposta 8" },
-  { "question": "Preciso ter cnpj para criar uma conta?", "answer": "Resposta 9" },
-  { "question": "Como faço para me cadastrar?", "answer": "Resposta 10" },
-  { "question": "Como faço para me descadastrar?", "answer": "Resposta 11" },
-  { "question": "Como faço para alterar meus dados?", "answer": "Resposta 12" },
-  { "question": "Como faço para recuperar minha senha?", "answer": "Resposta 13" },
-  { "question": "Como faço para alterar meu email?", "answer": "Resposta 14" },
-  { "question": "Como faço para user minha maquina?", "answer": "Faca o download do manual, no qual pode ser accessado aqui:" }
+  { "question": "Quem somos nos?", "answer": "A Letrajato é a primeira empresa brasileira especializada em tecnologia de impressão 3D aplicada à comunicação visual. Somos fabricantes de impressoras 3D profissionais de grande porte, focadas na produção de letras e logotipos em relevo." },
+  { "question": "O que fazemos?", "answer": "Atuamos com soluções de impressão 3D voltadas ao setor de comunicação visual, fabricando impressoras 3D de ponta e oferecendo produtos e serviços relacionados à tecnologia de impressão 3D para comunicação visual. Nosso foco é modernizar processos, aumentar a eficiência e a lucratividade de empresas através de tecnologia avançada, sustentabilidade e inovação." },
+  { "question": "Como faço para fazer um orçamento", "answer": "Você pode solicitar um orçamento se tornando revendedor da letrajato! Assim que for se registrar no site e for aceito como revendedor será liberado acesso a página de orçamento automático." },
+  { "question": "Como faço para comprar maquinas?", "answer": "Para comprar nossas impressoras 3D profissionais, você pode entrar em contato conosco pelo nosso instagram ou whatsapp. Visite nossa seção de produtos para conhecer os modelos disponíveis e as opções de compra." },
+  { "question": "Como faço para virar revendedor?", "answer": "Ao criar sua conta seleciona a opção de revendedor e preencha suas informações. Caso tenha login entre na sua página inicial e clique em Solicitar Cadastro como Revendedor" },
+  { "question": "Como entrar em contato com a gente?", "answer": "Através do nosso instagram e whatsapp" }
 ]

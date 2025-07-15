@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/Faq.css";
-import NavBar from "../components/NavBar";
+import NavBar from "../components/NewNavBar";
 import { Link } from "react-router-dom";
 import faqData from "../assets/jsons/faq.json";
 
@@ -27,13 +27,6 @@ function Faq() {
       </section>
       <section className="white-section">
         <div className="inner">
-          <div className="white-links">
-            <Link to="/*">FAQs</Link>
-            <Link to="/*">About us</Link>
-            <Link to="/support">Ticket Support</Link>{" "} {/*!--- cuidado é /ticket ---*/}
-            <Link to="/*">Enter in contact</Link>
-            <Link to="/*">Become verified</Link>
-          </div>
           <div className="white-questions">
             {visibleFaqs.map((item, idx) => (
               <details key={idx}>

@@ -1,6 +1,6 @@
 import React from "react";
 import "../styles/Sobre.css";
-import NavBar from "../components/NavBar";
+import NavBar from "../components/NewNavBar";
 import { Link } from "react-router-dom";
 
 function Sobre() {
@@ -28,14 +28,15 @@ function Sobre() {
         <div className="sobre-social">
           <h4>Redes Sociais</h4>
           <div className="social-links">
-            <a href="#" className="social-icon" title="Instagram" target="_blank" rel="noopener noreferrer">Instagram</a>
-            <a href="#" className="social-icon" title="Facebook" target="_blank" rel="noopener noreferrer">Facebook</a>
-            <a href="#" className="social-icon" title="LinkedIn" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <Link className="social-icon" to="https://www.instagram.com/letrajato?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==">
+              <img 
+                src="\src\assets\Instagram_icon.png" 
+                alt="Instagram"
+                style={{ width: '24px', height: '24px' }} 
+              />
+              Instagram
+            </Link>
           </div>
-        </div>
-        <div className="sobre-actions">
-          <Link to="/produtos" className="sobre-btn sobre-btn-produtos">Veja nossos produtos</Link>
-          <Link to="/contato" className="sobre-btn sobre-btn-contato">Solicite um orçamento</Link>
         </div>
       </div>
     </div>

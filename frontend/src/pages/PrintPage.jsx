@@ -54,7 +54,7 @@ function PrintPage() {
           <p style={{ fontSize: '1.25em', color: '#222', marginBottom: 36, lineHeight: 1.7 }}>
             {product.description || ''}
           </p>
-          <Link to={`/produtos/${productId}/comprar`} style={{
+          <Link to={`https://www.instagram.com/letrajato?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==`} style={{
             display: 'inline-block',
             padding: '12px 32px',
             border: '2px solid #222',
@@ -67,7 +67,7 @@ function PrintPage() {
             transition: 'background 0.2s, color 0.2s',
             marginTop: 12
           }}>
-            Comprar agora
+            Entre em contato!
           </Link>
           <ul style={{
             marginTop: 32,

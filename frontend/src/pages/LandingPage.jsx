@@ -43,21 +43,21 @@ function LandingPage() {
       <h1 className="carousel-title">Letrajato LJ V4</h1>
       <p className="carousel-subtitle">A impressora mais rápida para comunicação visual do Brasil!</p>
       <div className="carousel-buttons">
-        <button className="carousel-learn-more">Eu quero!</button>
-        <Link className="carousel-buy-now" to="/products/11">Saiba mais</Link>
+        {/*<Link className="carousel-learn-more">Eu quero!</Link>*/}
+        <Link className="carousel-buy-now" to="/products/1">Saiba mais</Link>
       </div>
     </div>
   )
 },
   {
-  backgroundImage: '/src/assets/image3.jpeg',
+  backgroundImage: '/src/assets/Stand.jpg',
   content: (
     <div className="carousel-slide-content">
       <span className="carousel-promo">Evento</span>
       <h1 className="carousel-title">Letrajato na FuturePrint!</h1>
       <p className="carousel-subtitle">Nos encontre eno maior evento de comunicação visual do Brasil!</p>
       <div className="carousel-buttons">
-        <button className="carousel-learn-more">Saiba mais</button>
+        <Link className="carousel-learn-more" to="https://app.informamarkets.com.br/event/futureprint-xperience-2025/webview/RXZlbnRWaWV3XzkxODI4Ng==">Saiba mais</Link>
       </div>
     </div>
   )

@@ -7,7 +7,7 @@
   padding: 0 32px;
   height: 55px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  position: relative;
+  position: sticky;
   z-index: 10;
 }
 .navbar-logo {
@@ -90,9 +90,10 @@
   font-weight: 500;
   padding: 6px;
   transition: background 0.2s, color 0.2s;
+  text-decoration: none;
 }
 .navbar-buy:hover {
-  background: linear-gradient(90deg, #ff4d00 0%, #ff4d00 100%);
+  background: #6e2303;
   color: #fff;
 }
 @media (max-width: 900px) {

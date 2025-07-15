@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NavBar from '../components/NavBar';
+import NavBar from '../components/NewNavBar';
 import SupportTicketForm from '../components/SupportTicketForm';
 import UserTicketsList from '../components/UserTicketsList';
 import '../styles/Support.css';

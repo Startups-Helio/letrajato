@@ -25,9 +25,6 @@ function Marketplace() {
       setError('Erro ao carregar produtos.');
       setLoading(false);
     }
-    finally {
-      setLoading(true);
-    }
   };
   return (
     <div className="cs-marketplace-container">

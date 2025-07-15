@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
-import NavBar from "../components/NavBar";
+import NavBar from "../components/NewNavBar";
 import "../styles/VerificationPending.css";
 
 function VerificationPending() {

@@ -47,7 +47,7 @@ function NewNavBar() {
   return (
     <nav className="navbar">
       <div className="navbar-logo">
-        <Link to="/">Letrajato</Link>
+        <Link to="/" className="navbar-logo">Letrajato</Link>
       </div>
       <ul className="navbar-menu">
         <Link className="navbar-item" to="/marketplace">Produtos</Link>
@@ -55,7 +55,7 @@ function NewNavBar() {
         <Link className="navbar-item" to="/sobre">Sobre</Link>
       </ul>
       <div className="navbar-actions">
-        <Link to="/home" className="nav-link">Início</Link>
+        <Link to="/home" className="navbar-buy">Início</Link>
         {isAuthenticated ? (
           <>
             {(isRevendedor || isAdmin) && (

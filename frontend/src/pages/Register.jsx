@@ -1,5 +1,5 @@
 import RegisterForm from "../components/RegisterForm"
-import NavBar from "../components/NavBar"
+import NavBar from "../components/NewNavBar"
 
 function Register(){
   return <div>
