@@ -22,7 +22,7 @@ function Faq() {
           </p>
         </div>
         <div className="gray-image">
-          <img src="src/assets/suporte_image.png" loading="lazy" />
+          <img src="/suporte_image.png" loading="lazy" />
         </div>
       </section>
       <section className="white-section">
