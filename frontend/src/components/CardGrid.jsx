@@ -9,7 +9,7 @@ const cards = [
     links: [
       { label: "Loja", to: "/marketplace" }
     ],
-    image: "/src/assets/printer_icon.png",
+    image: "/printer_icon.png",
     alt: "Impressora 3D profissional",
     soon: false
   },
@@ -17,7 +17,7 @@ const cards = [
     title: "Filamentos",
     subtitle: "Materiais de impressão 3D de alta qualidade",
     links: [],
-    image: "/src/assets/filment_icon.png",
+    image: "/filment_icon.png",
     alt: "Bobinas de filamento coloridas",
     soon: true
   },
@@ -27,7 +27,7 @@ const cards = [
     links: [
       { label: "Apenas para compradores", to: "/" }
     ],
-    image: "/src/assets/suport_icon.png",
+    image: "/suport_icon.png",
     alt: "Coleção de objetos impressos e smartphone",
     soon: false
   },
@@ -35,7 +35,7 @@ const cards = [
     title: "Serviços",
     subtitle: "Orçamento e produção de letras exclusivas",
     links: [],
-    image: "/src/assets/service_icon.png",
+    image: "/service_icon.png",
     alt: "Mouse, componentes eletrônicos, acessórios",
     soon: true
   }
