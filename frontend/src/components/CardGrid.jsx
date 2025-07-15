@@ -17,7 +17,7 @@ const cards = [
     title: "Filamentos",
     subtitle: "Materiais de impressão 3D de alta qualidade",
     links: [],
-    image: "/filment_icon.png",
+    image: "/filament_icon.png",
     alt: "Bobinas de filamento coloridas",
     soon: true
   },
