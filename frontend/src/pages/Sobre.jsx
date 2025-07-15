@@ -30,7 +30,7 @@ function Sobre() {
           <div className="social-links">
             <Link className="social-icon" to="https://www.instagram.com/letrajato?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==">
               <img 
-                src="\src\assets\Instagram_icon.png" 
+                src="\Instagram_icon.png" 
                 alt="Instagram"
                 style={{ width: '24px', height: '24px' }} 
               />
